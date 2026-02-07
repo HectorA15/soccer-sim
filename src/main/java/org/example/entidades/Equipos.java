@@ -24,6 +24,8 @@ import java.util.Random;
  */
 public class Equipos {
 
+    private final Map<Jugador, Posicion> posicionesAsignadas = new LinkedHashMap<>();
+
     /**
      * El portero del equipo. Puede ser null si no está asignado.
      */
@@ -206,23 +208,10 @@ public class Equipos {
 
     public void asignarPosiciones(Random random){
 
-        if (formacion == null) {
-            throw new IllegalStateException("Debes asignar una formación antes de asignar posiciones.");
-        }
-        if (portero == null) {
-            throw new IllegalStateException("El equipo debe tener portero antes de asignar posiciones.");
-        }
-
         int defensas = formacion.getDefensas();
         int mediocampistas = formacion.getMediocampistas();
         int delanteros = formacion.getDelanteros();
 
-        if(defensas + mediocampistas + delanteros != 10){
-            throw new IllegalStateException("La formación debe sumar 10 jugadores de campo (ej: 4-4-2).");
-        }
-        if (jugadores.size() != 10) {
-            throw new IllegalStateException("Se requieren exactamente 10 jugadores de campo para asignar posiciones.");
-        }
 
         portero.setPosicion(Posicion.PORTERIA);
 
@@ -238,6 +227,15 @@ public class Equipos {
         }
     }
 
+
+    public Posicion getPosicionAsignada(Jugador jugador) {
+        return posicionesAsignadas.get(jugador);
+    }
+
+    public Map<Jugador, Posicion> getPosicionesAsignadas() {
+        return Map.copyOf(posicionesAsignadas);
+    }
+    }
     /**
      * Genera representación en texto del equipo completo.
      * <p>
@@ -258,8 +256,8 @@ public class Equipos {
         sb.append("\"").append(this.nombre).append("\"").append("\n\n");
         sb.append(" ".repeat(35)).append("Equipo ")
                 .append(isLocal ? "Local" : "Visitante").append("\n\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %5s %5s %5s",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Saq", "Ref", "Pos\n\n"));
+        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %5s %5s %5s %5s",
+                "Nombre", "Posicion", "Vel", "Tiro", "Pase", "Def", "Fis", "Saq", "Ref", "Pos\n\n"));
         sb.append("PORTERO").append("\n");
         sb.append(portero).append("\n\n");
 
