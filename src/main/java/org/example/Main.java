@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class Main {
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
 
         String[] nombresJugadores = JugadoresNombres.getJugadores();
         Random random = new Random();
