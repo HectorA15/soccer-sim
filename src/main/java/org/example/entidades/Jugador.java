@@ -1,5 +1,7 @@
 package org.example.entidades;
 
+import org.example.enums.Posicion;
+
 /**
  * Representa un jugador de fútbol con sus estadísticas básicas.
  * <p>
@@ -32,6 +34,8 @@ public class Jugador {
 
     /** Resistencia física (1-100). Reduce probabilidad de lesiones. */
     private int fisico;
+
+    private Posicion posicion;
 
     /**
      * Crea un jugador con nombre especificado y estadísticas en 0.
@@ -73,6 +77,7 @@ public class Jugador {
     protected void setPase(int pase) { this.pase = pase; }
     protected void setDefensa(int defensa) { this.defensa = defensa; }
     protected void setFisico(int fisico) { this.fisico = fisico; }
+    protected void setPosicion(Posicion posicion) { this.posicion = posicion; }
 
     // --- Getters ---
 
@@ -86,6 +91,7 @@ public class Jugador {
     public int getPase() { return pase; }
     public int getDefensa() { return defensa; }
     public int getFisico() { return fisico; }
+    public Posicion getPosicion() { return posicion; }
 
     /**
      * Asigna valores aleatorios (1-100) a todas las estadísticas.

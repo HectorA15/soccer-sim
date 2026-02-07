@@ -1,7 +1,10 @@
 package org.example.entidades;
 
+import org.example.enums.Posicion;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Representa un equipo de fútbol completo con jugadores titulares y suplentes.
@@ -21,20 +24,32 @@ import java.util.List;
  */
 public class Equipos {
 
-    /** El portero del equipo. Puede ser null si no está asignado. */
+    /**
+     * El portero del equipo. Puede ser null si no está asignado.
+     */
     private Portero portero;
 
-    /** Indica si el equipo juega como local (true) o visitante (false). */
+    /**
+     * Indica si el equipo juega como local (true) o visitante (false).
+     */
     private boolean isLocal;
 
-    /** Nombre del equipo. */
+    /**
+     * Nombre del equipo.
+     */
     private String nombre;
 
-    /** Lista de jugadores titulares (máximo 10). */
-    private List<Jugador> jugadores = new ArrayList<>(10);
+    /**
+     * Lista de jugadores titulares (máximo 10).
+     */
+    private final List<Jugador> jugadores = new ArrayList<>(10);
 
-    /** Lista de jugadores suplentes (sin límite). */
-    private List<Jugador> reserva = new ArrayList<>();
+    /**
+     * Lista de jugadores suplentes (sin límite).
+     */
+    private final List<Jugador> reserva = new ArrayList<>();
+
+    private Formacion formacion;
 
     /**
      * Crea un equipo vacío sin jugadores ni nombre asignado.
@@ -42,7 +57,9 @@ public class Equipos {
     public Equipos() {
     }
 
-    /** Establece el nombre del equipo. */
+    /**
+     * Establece el nombre del equipo.
+     */
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -57,6 +74,10 @@ public class Equipos {
         this.portero = portero;
     }
 
+    public void setFormacion(Formacion formacion) {
+        this.formacion = formacion;
+    }
+
     /**
      * Obtiene el portero del equipo.
      *
@@ -68,17 +89,20 @@ public class Equipos {
 
     /**
      * Agrega un jugador a la lista de titulares.
-     * <p>
-     * <b>Advertencia</b>: No valida el límite de 10 jugadores.
-     * Usar {@link #isFull()} antes de llamar.
      *
      * @param jugador el jugador a agregar
      */
-    public void setJugador(Jugador jugador) {
+    public boolean setJugador(Jugador jugador) {
+        if (jugadores.size() >= 10) {
+            return false;  // No se pudo agregar
+        }
         this.jugadores.add(jugador);
+        return true;
     }
 
-    /** Agrega un jugador a la lista de suplentes. */
+    /**
+     * Agrega un jugador a la lista de suplentes.
+     */
     public void setReserva(Jugador jugador) {
         this.reserva.add(jugador);
     }
@@ -114,7 +138,9 @@ public class Equipos {
         return reserva.get(posicion);
     }
 
-    /** Obtiene el nombre del equipo. */
+    /**
+     * Obtiene el nombre del equipo.
+     */
     public String getNombre() {
         return nombre;
     }
@@ -170,12 +196,48 @@ public class Equipos {
 
     /**
      * Verifica si el equipo esta completo (11 jugadores).
+     *
      * @return
      */
 
     public boolean isFull() {
         return (isTitularesCompletos() && portero != null);
     }
+
+    public void asignarPosiciones(Random random){
+
+        if (formacion == null) {
+            throw new IllegalStateException("Debes asignar una formación antes de asignar posiciones.");
+        }
+        if (portero == null) {
+            throw new IllegalStateException("El equipo debe tener portero antes de asignar posiciones.");
+        }
+
+        int defensas = formacion.getDefensas();
+        int mediocampistas = formacion.getMediocampistas();
+        int delanteros = formacion.getDelanteros();
+
+        if(defensas + mediocampistas + delanteros != 10){
+            throw new IllegalStateException("La formación debe sumar 10 jugadores de campo (ej: 4-4-2).");
+        }
+        if (jugadores.size() != 10) {
+            throw new IllegalStateException("Se requieren exactamente 10 jugadores de campo para asignar posiciones.");
+        }
+
+        portero.setPosicion(Posicion.PORTERIA);
+
+
+        for (int i = 0; i < defensas; i++) {
+            jugadores.get(i).setPosicion(Posicion.DEFENSA);
+        }
+        for (int i = defensas; i < defensas + mediocampistas; i++) {
+            jugadores.get(i).setPosicion(Posicion.MEDIOCAMP);
+        }
+        for (int i = defensas + mediocampistas; i < jugadores.size(); i++) {
+            jugadores.get(i).setPosicion(Posicion.DELANTERO);
+        }
+    }
+
     /**
      * Genera representación en texto del equipo completo.
      * <p>

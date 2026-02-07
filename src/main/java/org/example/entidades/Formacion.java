@@ -21,16 +21,16 @@ package org.example.entidades;
 public class Formacion {
 
     /** El nombre de la Formacion */
-    String nombreFormacion;
+    private String nombreFormacion;
 
     /** Capacidad de jugadores para la posicion de Defensa */
-    int defensas;
+    private int defensas;
 
     /** Capacidad de jugadores para la posicion de Mediocampista */
-    int mediocampistas;
+    private int mediocampistas;
 
     /** Capacidad de jugadores para la posicion de Delantero */
-    int delanteros;
+    private int delanteros;
 
     /**
      * Crea una Formacion que establece la  cantidad de jugadores que pueden haber en una posicion
