@@ -1,11 +1,14 @@
 package org.example.entidades;
 
+import org.example.enums.Posicion;
+
 public class Portero extends Jugador {
     private int saque;
     private int reflejos;
 
     public Portero(String nombre){
         super(nombre);
+        setPosicion(Posicion.PORTERIA);
     }
 
     public int getSaque(){
@@ -14,7 +17,6 @@ public class Portero extends Jugador {
     public int getReflejos(){
         return reflejos;
     }
-
     @Override
     public void setRandomStats(){
         super.setRandomStats();

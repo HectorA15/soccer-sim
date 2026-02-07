@@ -40,15 +40,12 @@ public class Eventos {
     /**
      * Simula la ejecución de un penal.
      * <p>
-     * Actualmente no recibe parámetros. Se recomienda refactorizar para recibir
-     * el tirador y el portero explícitamente.
      *
      * @return {@code true} si el penal termina en gol, {@code false} si falla o es atajado
-     * @todo Cambiar firma a {@code penal(Jugador tirador, Portero portero)}
      * @todo Distinguir entre penal atajado y penal fallado para estadísticas precisas
      * @todo Actualizar stats: penalesLanzados, penalesAnotados/Fallados, penalesAtajados
      */
-    public boolean penal() {
+    public boolean penal(Jugador tirador, Portero portero) {
         return false;
     }
 
@@ -111,15 +108,6 @@ public class Eventos {
     }
 
     /**
-     * @deprecated El número de dorsal no es un evento de partido sino un atributo del jugador.
-     * Este método será eliminado. Usar el campo {@code dorsal} en la clase {@code Jugador}.
-     */
-    @Deprecated
-    public boolean dorsal() {
-        return false;
-    }
-
-    /**
      * Determina si un jugador sufre una lesión y su gravedad.
      * <p>
      * La probabilidad se basa principalmente en el físico del jugador.
@@ -146,7 +134,11 @@ public class Eventos {
      * @todo Validar límite de cambios permitidos y reglas del juego
      * @todo Actualizar: minutoSalida, minutoEntrada, minutosJugados, cambiosRealizados
      */
-    public boolean cambio() {
+    public boolean cambio(Jugador sale, Jugador entra) {
+        return false;
+    }
+
+    public boolean cambioPosiciones(){
         return false;
     }
 }

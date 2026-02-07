@@ -1,5 +1,7 @@
 package org.example.entidades;
 
+import org.example.enums.Posicion;
+
 public class Jugador {
 
     private final String nombre;
@@ -9,6 +11,7 @@ public class Jugador {
     private int pase;
     private int defensa;
     private int fisico;
+    private Posicion posicion;
 
     public Jugador(String nombre){
         this.nombre = nombre;
@@ -21,6 +24,7 @@ public class Jugador {
         this.pase = pase;
         this.defensa = defensa;
         this.fisico = fisico;
+        this.posicion = null;
     }
 
 
@@ -31,6 +35,7 @@ public class Jugador {
     protected void setPase(int pase) { this.pase = pase; }
     protected void setDefensa(int defensa) { this.defensa = defensa; }
     protected void setFisico(int fisico) { this.fisico = fisico; }
+    protected void setPosicion(Posicion posicion) { this.posicion = posicion; }
 
     //getters
     public String getNombre() { return nombre; }
@@ -39,6 +44,7 @@ public class Jugador {
     public int getPase() { return pase; }
     public int getDefensa() { return defensa; }
     public int getFisico() { return fisico; }
+    public Posicion getPosicion() { return posicion; }
 
 
     //Establece las estadisticas del jugador aleatoriamente (1-100)
@@ -51,8 +57,8 @@ public class Jugador {
     }
 
     public String getStats(){
-        return String.format("%-25s %5d %5d %5d %5d %5d",
-                nombre, velocidad, tiro, pase, defensa, fisico);
+        return String.format("%-25s %10s %5d %5d %5d %5d %5d",
+                nombre, posicion, velocidad, tiro, pase, defensa, fisico);
     }
 
     @Override

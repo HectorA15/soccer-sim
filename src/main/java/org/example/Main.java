@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.entidades.Equipos;
+import org.example.entidades.Formacion;
 import org.example.entidades.Jugador;
 import org.example.entidades.Portero;
 import org.example.nombres.JugadoresNombres;
@@ -44,6 +45,14 @@ public class Main {
                 }
             }
         }
+
+        Formacion formacionLocal = new Formacion(4,4,2);
+        Formacion formacionVisitante = new Formacion(4,4,2);
+        equipoLocal.setFormacion(formacionLocal);
+        equipoVisitante.setFormacion(formacionVisitante);
+        equipoLocal.asignarPosiciones(random);
+        equipoVisitante.asignarPosiciones(random);
+
         System.out.println("=".repeat(100)+ "\n");
         System.out.println(equipoLocal);
         System.out.println("=".repeat(100)+ "\n");
