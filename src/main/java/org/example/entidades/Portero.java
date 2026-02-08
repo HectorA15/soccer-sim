@@ -3,77 +3,41 @@ package org.example.entidades;
 import org.example.enums.Posicion;
 
 /**
- * Representa un portero (goalkeeper) con estadísticas específicas adicionales.
- * <p>
- * Extiende {@link Jugador} agregando dos atributos exclusivos:
- * <ul>
- *   <li><b>Saque</b>: calidad de despejes y saques de meta</li>
- *   <li><b>Reflejos</b>: capacidad de reacción ante disparos</li>
- * </ul>
- * <p>
- * La posición se asigna automáticamente como {@link Posicion#PORTERIA}.
- *
- * @author HectorA15
- * @version 0.2
- * @see Jugador
+ * Representa un portero con estadísticas adicionales: saque y reflejos.
+ * La posición se asigna automáticamente como PORTERIA.
  */
 public class Portero extends Jugador {
 
-    /** Habilidad de saque (1-100). Afecta despejes y distribución. */
     private int saque;
-
-    /** Reflejos del portero (1-100). Determina probabilidad de atajadas. */
     private int reflejos;
 
-    /**
-     * Crea un portero con nombre especificado y estadísticas en 0.
-     * <p>
-     * La posición se asigna automáticamente como {@link Posicion#PORTERIA}.
-     * Usar {@link #setRandomStats()} para inicializar valores.
-     *
-     * @param nombre nombre completo del portero
-     */
     public Portero(String nombre) {
         super(nombre, Posicion.PORTERIA);
     }
 
-    /**
-     * Obtiene el valor de saque del portero.
-     *
-     * @return valor de saque (1-100)
-     */
     public int getSaque() {
         return saque;
     }
 
-    /**
-     * Obtiene el valor de reflejos del portero.
-     *
-     * @return valor de reflejos (1-100)
-     */
     public int getReflejos() {
         return reflejos;
     }
 
     /**
-     * Asigna valores aleatorios a las estadísticas del portero.
-     * <p>
-     * Invoca {@link Jugador#setRandomStats()} para las stats base,
-     * luego asigna valores a saque y reflejos.
+     * Asigna valores aleatorios a TODAS las stats (las 5 base + saque + reflejos).
+     * Llama primero a super.setRandomStats() para las stats base,
+     * luego asigna las específicas del portero.
      */
     @Override
     public void setRandomStats() {
-        super.setRandomStats();
+        super.setRandomStats();  // Esto asigna velocidad, tiro, pase, defensa, físico
         saque    = 1 + (int)(Math.random() * 100);
         reflejos = 1 + (int)(Math.random() * 100);
     }
 
     /**
-     * Genera representación formateada incluyendo stats de portero.
-     * <p>
-     * Formato: [stats de Jugador] + saque + reflejos (5 chars cada uno).
-     *
-     * @return string con todas las estadísticas
+     * toString personalizado para mostrar las 7 stats (5 base + saque + reflejos).
+     * Nota: El formato es diferente a Jugador porque tiene 2 columnas extra.
      */
     @Override
     public String toString() {
