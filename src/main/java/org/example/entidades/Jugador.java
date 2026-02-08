@@ -15,7 +15,7 @@ public class Jugador {
     private int pase;
     private int defensa;
     private int fisico;
-
+    private int dorsal;
     /**
      * Constructor básico: solo nombre, stats en 0.
      * Debes llamar a setRandomStats() o usar los setters para asignar valores.
@@ -72,6 +72,10 @@ public class Jugador {
         this.posicion = posicion;
     }
 
+    public void setDorsal(int dorsal) {
+        this.dorsal = dorsal;
+    }
+
     // ===== GETTERS =====
 
     public String getNombre() {
@@ -102,6 +106,9 @@ public class Jugador {
         return fisico;
     }
 
+    public int getDorsal() {
+        return dorsal;
+    }
     /**
      * Asigna valores aleatorios (1-100) a todas las estadísticas.
      *

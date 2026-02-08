@@ -198,22 +198,22 @@ public class Equipos {
 
         // Header para PORTERO
         sb.append("PORTERO").append("\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %5s %5s %10s",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Saq", "Ref", "Posición\n\n"));
+        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %5s %5s %10s\n\n",
+                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Saq", "Ref", "Posición"));
         sb.append(portero).append("\n\n");
 
         // Header para JUGADORES
         sb.append("JUGADORES").append("\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición\n\n"));
+        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s\n\n",
+                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición"));
         for (Jugador jugador : jugadores) {
             sb.append(jugador).append("\n");
         }
 
         sb.append("\n");
         sb.append("RESERVA").append("\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición\n\n"));
+        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s\n\n",
+                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición"));
         for (Jugador jugador : reserva) {
             sb.append(jugador).append("\n");
         }

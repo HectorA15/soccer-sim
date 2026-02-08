@@ -4,141 +4,278 @@ import org.example.entidades.Portero;
 import org.example.entidades.Jugador;
 
 /**
- * Gestiona los eventos que ocurren durante un partido de fútbol.
- * <p>
- * Incluye la simulación de goles, penales, saques de banda, tiros libres,
- * tiros a puerta, tiros de esquina, lesiones y cambios.
- * <p>
- * Los cálculos se basan en las estadísticas de los jugadores involucrados
- * y utilizan probabilidades para determinar el resultado de cada evento.
+ * Gestiona el RESULTADO de los eventos del partido.
  *
- * @version 0.1
- * @see Jugador
- * @see Portero
+ * Esta clase NO decide CUÁNDO ocurren los eventos (eso es responsabilidad de Partido.java).
+ * Solo decide si tienen éxito cuando ya ocurrieron.
+ *
+ * FÓRMULA BÁSICA:
+ * probabilidad = (statAtacante / (statAtacante + statDefensor)) * 100
+ * Si random(0-100) < probabilidad → ÉXITO
  */
 public class Eventos {
 
     public Eventos(){
     }
 
+    // ========== EVENTOS DE GOL ==========
+
     /**
-     * Resuelve un intento de gol comparando las estadísticas del atacante y el portero.
-     * <p>
-     * La probabilidad de éxito se calcula usando {@code atacante.getTiro()} contra
-     * la capacidad de atajada del portero (por implementar: stat de reflejos/paradas).
+     * Resuelve un tiro a puerta: ¿es gol o atajado?
      *
-     * @param atacante el jugador que realiza el disparo
-     * @param portero el portero que intenta detener el tiro
-     * @return {@code true} si el disparo resulta en gol, {@code false} si es atajado
-     * @todo Implementar fórmula de probabilidad y actualizar stats de partido (tiros, goles, paradas)
-     * @todo Agregar stat de reflejos/paradas a la clase Portero
+     * STATS RELEVANTES:
+     * - Atacante: tiro
+     * - Portero: reflejos
+     *
+     * FÓRMULA SUGERIDA:
+     * probabilidad = tiro / (tiro + reflejos) * 100
+     *
+     * @param atacante quien dispara
+     * @param portero quien ataja
+     * @return true si es gol, false si es atajado
      */
-    public boolean intentarGol(Jugador atacante, Portero portero) {
+    public boolean tiroPuerta(Jugador atacante, Portero portero) {
+        // TODO: Implementar
         return false;
     }
 
     /**
-     * Simula la ejecución de un penal.
-     * <p>
+     * Resuelve un penal: ¿es gol o atajado/fallado?
      *
-     * @return {@code true} si el penal termina en gol, {@code false} si falla o es atajado
-     * @todo Distinguir entre penal atajado y penal fallado para estadísticas precisas
-     * @todo Actualizar stats: penalesLanzados, penalesAnotados/Fallados, penalesAtajados
+     * IMPORTANTE: Los penales son MÁS FÁCILES que tiros normales (~75-80% de éxito).
+     *
+     * OPCIONES:
+     * - Multiplicar tiro del jugador por 1.5
+     * - Reducir reflejos del portero a la mitad
+     * - Probabilidad base de 75% ajustada por diferencia de stats
+     *
+     * @param tirador quien ejecuta
+     * @param portero quien intenta atajar
+     * @return true si es gol, false si falla o es atajado
      */
     public boolean penal(Jugador tirador, Portero portero) {
+        // TODO: Implementar (más fácil que tiroPuerta)
         return false;
     }
 
     /**
-     * Resuelve un saque de banda determinando si se mantiene la posesión.
-     * <p>
-     * Evalúa la habilidad de pase del ejecutor contra la capacidad defensiva
-     * y velocidad de los rivales cercanos.
+     * Resuelve un tiro libre.
      *
-     * @return {@code true} si el equipo conserva el balón, {@code false} si lo pierde
-     * @todo Recibir ejecutor y defensor(es) como parámetros
-     * @todo Actualizar stats: pasesIntentados, pasesCompletados, intercepciones
+     * OPCIONES DE DISEÑO:
+     *
+     * OPCIÓN 1 (Simple): Tratarlo como tiroPuerta()
+     *
+     * OPCIÓN 2 (Realista): Decidir entre disparo directo o centro
+     * - Si tiro > 75 → disparar (usar tiroPuerta)
+     * - Si no → centro al área (evaluar pase, luego duelo físico, luego tiroPuerta)
+     *
+     * @param ejecutor quien cobra el tiro libre
+     * @param portero el portero rival
+     * @return true si termina en gol, false si no
      */
-    public boolean saqueBanda() {
+    public boolean tiroLibre(Jugador ejecutor, Portero portero) {
+        // TODO: Implementar (usa tiroPuerta o haz versión con centro)
         return false;
     }
 
     /**
-     * Simula la ejecución de un tiro libre.
-     * <p>
-     * Puede resolverse como disparo directo a puerta o como pase/centro al área.
-     * El resultado depende de las estadísticas de tiro/pase del ejecutor y las
-     * capacidades defensivas de los oponentes.
+     * Resuelve un tiro de esquina (córner).
      *
-     * @return {@code true} si genera una ocasión clara o gol
-     * @todo Renombrar método a {@code tiroLibre()} (typo actual: tiroLibera)
-     * @todo Recibir ejecutor, portero y/o defensores según nivel de detalle
-     * @todo Implementar lógica para decidir entre disparo directo vs centro
+     * PROCESO SUGERIDO (2 pasos):
+     *
+     * PASO 1: ¿Quién gana el balón en el área?
+     * - Atacante: físico
+     * - Defensor: físico + defensa
+     * - Si gana defensor → return false (despeja)
+     *
+     * PASO 2: Si gana atacante, ¿es gol?
+     * - Usar tiroPuerta(atacante, portero)
+     *
+     * NOTA: Solo ~3-5% de corners terminan en gol en fútbol real.
+     *
+     * @param atacante quien intenta rematar
+     * @param defensor quien defiende
+     * @param portero quien ataja
+     * @return true si es gol, false en cualquier otro caso
      */
-    public boolean tiroLibera() {
+    public boolean tiroEsquina(Jugador atacante, Jugador defensor, Portero portero) {
+        // TODO: Implementar proceso de 2 pasos
         return false;
     }
 
+    // ========== EVENTOS DE JUEGO ==========
+
     /**
-     * Resuelve un disparo que va dirigido a puerta.
-     * <p>
-     * Determina si el portero logra atajar o si termina en gol.
+     * Resuelve un saque de banda: ¿mantiene posesión?
      *
-     * @return {@code true} si resulta en gol
-     * @todo Considerar reutilizar {@code intentarGol()} o extraer lógica común
-     * @todo Actualizar stats: tiros, tirosAPuerta, goles, paradas, golesEncajados
+     * STATS RELEVANTES:
+     * - Ejecutor: pase
+     * - Defensor: defensa + velocidad (para interceptar)
+     *
+     * @param ejecutor quien saca
+     * @param defensor quien presiona
+     * @return true si mantiene posesión, false si la pierde
      */
-    public boolean tiroPuerta() {
+    public boolean saqueBanda(Jugador ejecutor, Jugador defensor) {
+        // TODO: Implementar
         return false;
     }
 
     /**
-     * Simula un tiro de esquina (córner).
-     * <p>
-     * Evalúa la calidad del centro, los duelos aéreos en el área, y si se genera
-     * un remate a puerta. Considera las habilidades de pase del lanzador, físico
-     * del rematador, y capacidades defensivas de los marcadores.
+     * Determina si hay fuera de juego en una jugada.
      *
-     * @return {@code true} si el córner genera remate u ocasión clara
-     * @todo Recibir lanzador, rematador(es), defensores y portero como parámetros
-     * @todo Actualizar stats: corners, pases, tiros, despejes
+     * QUÉ ES: El atacante está más adelantado que el último defensor cuando recibe el pase.
+     *
+     * OPCIONES DE IMPLEMENTACIÓN:
+     *
+     * OPCIÓN 1 (Simple - Aleatoria):
+     * - Probabilidad fija: 10-15% de que haya fuera de juego en jugadas de ataque
+     *
+     * OPCIÓN 2 (Basada en stats):
+     * - Comparar velocidad del atacante vs defensa del defensor
+     * - Atacante más rápido → más probable que esté adelantado
+     *
+     * SUGERENCIA: Intenta usar la opcion 2, usa la opcion 1 solo si no te crees capaz.
+     *
+     * @param atacante el jugador que recibe el pase
+     * @param defensor el último defensor
+     * @return true si hay fuera de juego (se anula la jugada), false si es válida
      */
-    public boolean tiroEsquina() {
+    public boolean fueraDeJuego(Jugador atacante, Jugador defensor) {
+        // TODO: Implementar (opción 1 es la más simple)
+        return false;
+    }
+
+    // ========== TARJETAS ==========
+
+    /**
+     * Determina si se muestra tarjeta amarilla en una falta.
+     *
+     * CUÁNDO OCURRE:
+     * - Falta fuerte
+     * - Jugador con baja defensa hace falta (no sabe defender bien)
+     * - Acumulación de faltas
+     *
+     * FÓRMULA SUGERIDA:
+     * probabilidad = (100 - defensa) / 8
+     *
+     * Ejemplos:
+     * - Defensa 80 → (100-80)/8 = 2.5% de amarilla
+     * - Defensa 40 → (100-40)/8 = 7.5% de amarilla
+     *
+     * NOTA: Si un jugador ya tiene amarilla y saca otra → expulsión (roja directa)
+     *
+     * @param jugador quien comete la falta
+     * @return true si recibe tarjeta amarilla, false si no
+     */
+    public boolean tarjetaAmarilla(Jugador jugador) {
+        // TODO: Implementar basándose en stat de defensa
         return false;
     }
 
     /**
-     * Determina si un jugador sufre una lesión y su gravedad.
-     * <p>
-     * La probabilidad se basa principalmente en el físico del jugador.
-     * Valores más bajos aumentan el riesgo de lesión.
+     * Determina si se muestra tarjeta roja directa (expulsión).
      *
-     * @param jugador el jugador evaluado para posible lesión
-     * @return {@code true} si la lesión obliga a realizar un cambio
-     * @todo Implementar niveles de gravedad (leve/media/grave)
-     * @todo Actualizar stats: lesiones, estado del jugador, minutos jugados
-     * @todo Evaluar si la lesión reduce temporalmente otras estadísticas
+     * CUÁNDO OCURRE:
+     * - Falta muy grave
+     * - Jugada de último defensor (impide gol claro)
+     * - Agresión
+     *
+     * PROBABILIDAD: Muy baja (1-2% en faltas graves)
+     *
+     * OPCIÓN SIMPLE:
+     * - Probabilidad fija de 2%
+     *
+     * OPCIÓN REALISTA:
+     * - Si es último defensor → 20%
+     * - Si es falta normal → 1%
+     *
+     * IMPORTANTE: Si un jugador es expulsado, debe salir del partido y
+     * el equipo juega con 10 jugadores (no se puede reemplazar).
+     *
+     * @param jugador quien comete la falta
+     * @param esUltimoDefensor si es falta de último defensor
+     * @return true si recibe tarjeta roja (expulsión), false si no
+     */
+    public boolean tarjetaRoja(Jugador jugador, boolean esUltimoDefensor) {
+        // TODO: Implementar con probabilidad baja
+        // Si esUltimoDefensor=true, aumentar probabilidad
+        return false;
+    }
+
+    // ========== LESIONES Y CAMBIOS ==========
+
+    /**
+     * Determina si un jugador se lesiona.
+     *
+     * STATS RELEVANTES:
+     * - Físico del jugador (menor físico = más riesgo)
+     *
+     * FÓRMULA SUGERIDA:
+     * probabilidad = (100 - físico) / 10
+     *
+     * Ejemplos:
+     * - Físico 80 → 2% de lesión
+     * - Físico 50 → 5% de lesión
+     *
+     * @param jugador quien puede lesionarse
+     * @return true si se lesiona (debe salir), false si no
      */
     public boolean lesion(Jugador jugador) {
+        // TODO: Implementar fórmula basada en físico
         return false;
     }
 
     /**
-     * Realiza una sustitución de jugadores.
-     * <p>
-     * Actualmente no recibe parámetros. Debe refactorizarse para recibir
-     * los jugadores involucrados y el minuto del partido.
+     * Realiza un cambio (sustitución).
      *
-     * @return {@code true} si el cambio se realiza exitosamente
-     * @todo Cambiar firma a {@code cambio(Jugador sale, Jugador entra, int minuto)}
-     * @todo Validar límite de cambios permitidos y reglas del juego
-     * @todo Actualizar: minutoSalida, minutoEntrada, minutosJugados, cambiosRealizados
+     * PROBLEMA: Este metdo necesita modificar las listas del equipo.
+     *
+     * SOLUCIONES:
+     *
+     * OPCIÓN 1: Moverlo a la clase Equipos
+     * - Equipos.realizarCambio(Jugador sale, Jugador entra)
+     * - Tiene sentido porque Equipos tiene las listas
+     *
+     * OPCIÓN 2: Hacer que este metdo reciba el Equipo
+     * - cambio(Equipos equipo, Jugador sale, Jugador entra)
+     *
+     * VALIDACIONES NECESARIAS:
+     * - El que sale debe estar en titulares
+     * - El que entra debe estar en reserva
+     * - Máximo 5 cambios por partido
+     * - No se puede reemplazar a un expulsado (el equipo queda con menos jugadores)
+     *
+     * @param sale quien sale de la cancha
+     * @param entra quien entra de la banca
+     * @return true si el cambio es válido, false si no
      */
     public boolean cambio(Jugador sale, Jugador entra) {
+        // TODO: Considerar mover este método a Equipos.java
+        // O cambiar la firma para recibir Equipos
         return false;
     }
 
-    public boolean cambioPosiciones(){
+    /**
+     * Cambia la formación táctica durante el partido.
+     *
+     * CUÁNDO ES ÚTIL:
+     * - Equipo va perdiendo → formación ofensiva (ej: 3-3-4)
+     * - Equipo va ganando → formación defensiva (ej: 5-4-1)
+     * - Hay expulsión → ajustar formación (ej: de 4-4-2 a 4-3-2)
+     *
+     * LÓGICA:
+     * 1. Cambiar la formación del equipo
+     * 2. Reasignar posiciones de los jugadores
+     *
+     * NOTA: Similar a cambio(), este metdo necesita acceso al Equipo.
+     * Considera moverlo a Equipos.java o agregarlo en Partido.java
+     *
+     * @return true si se realizó el cambio
+     */
+    public boolean cambioPosiciones() {
+        // TODO: Considerar mover este método a Equipos.java
+        // O implementarlo directamente en Partido.java
         return false;
     }
 }
