@@ -1,7 +1,7 @@
 package org.example.entidades;
 
 /**
- * Representa la formacion de un equipo de futbol.
+ * Representa la formación táctica de un equipo de fútbol.
  * <p>
  * Define la distribución de jugadores en el campo (sin contar al portero):
  * <ul>
@@ -11,45 +11,51 @@ package org.example.entidades;
  * </ul>
  * <p>
  * <b>Importante</b>: La suma de las tres posiciones debe ser 10 (portero no incluido).
- * Actualmente no se valida esta restricción.
+ * El método {@link #isValida()} verifica esta restricción.
  * <p>
+ * Ejemplos de formaciones comunes:
+ * <ul>
+ *   <li>4-4-2: cuatro defensas, cuatro mediocampistas, dos delanteros</li>
+ *   <li>4-3-3: cuatro defensas, tres mediocampistas, tres delanteros</li>
+ *   <li>3-5-2: tres defensas, cinco mediocampistas, dos delanteros</li>
+ * </ul>
+ *
  * @author HectorA15
- * @version 0.1
+ * @version 0.2
  */
-
-
 public class Formacion {
 
-    /** El nombre de la Formacion */
+    /** Nombre de la formación en formato "D-M-A" (ej: "4-4-2"). */
     private String nombreFormacion;
 
-    /** Capacidad de jugadores para la posicion de Defensa */
+    /** Cantidad de jugadores en posición de defensa. */
     private int defensas;
 
-    /** Capacidad de jugadores para la posicion de Mediocampista */
+    /** Cantidad de jugadores en posición de mediocampo. */
     private int mediocampistas;
 
-    /** Capacidad de jugadores para la posicion de Delantero */
+    /** Cantidad de jugadores en posición de ataque. */
     private int delanteros;
 
     /**
-     * Crea una Formacion que establece la  cantidad de jugadores que pueden haber en una posicion
+     * Crea una formación táctica con la distribución especificada.
+     * <p>
+     * El nombre se genera automáticamente en formato "D-M-A".
+     * <p>
+     * <b>Advertencia</b>: No valida automáticamente que la suma sea 10.
+     * Es responsabilidad del llamador verificar con {@link #isValida()}.
      *
-     * <b>Advertencia</b>: No valida que la suma sea exactamente 10.
-     * Es responsabilidad del llamador que la suma entre los jugadores sea 10.
-     *
-     * @param defensas
-     * @param mediocampistas
-     * @param delanteros
-     * @throws IllegalArgumentException si algún valor es negativo (no implementado)
+     * @param defensas cantidad de defensores (típicamente 3-5)
+     * @param mediocampistas cantidad de mediocampistas (típicamente 3-5)
+     * @param delanteros cantidad de delanteros (típicamente 1-3)
+     * @throws IllegalArgumentException si algún valor es negativo (no implementado actualmente)
      */
-    public Formacion(int defensas, int mediocampistas, int delanteros){
+    public Formacion(int defensas, int mediocampistas, int delanteros) {
         this.defensas = defensas;
         this.mediocampistas = mediocampistas;
         this.delanteros = delanteros;
         this.nombreFormacion = defensas + "-" + mediocampistas + "-" + delanteros;
     }
-
 
     /**
      * Obtiene el nombre de la formación.
@@ -88,7 +94,9 @@ public class Formacion {
     }
 
     /**
-     * Verifica si la formación es válida (suma = 10 jugadores) no toma en cuenta el portero.
+     * Verifica si la formación es válida (suma = 10 jugadores).
+     * <p>
+     * No toma en cuenta el portero, solo jugadores de campo.
      *
      * @return {@code true} si la suma es 10, {@code false} en caso contrario
      */
@@ -99,7 +107,7 @@ public class Formacion {
     /**
      * Genera representación en texto de la formación.
      *
-     * @return nombre de la formación
+     * @return nombre de la formación en formato "D-M-A"
      */
     @Override
     public String toString() {

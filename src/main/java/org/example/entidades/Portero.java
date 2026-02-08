@@ -1,16 +1,20 @@
 package org.example.entidades;
 
+import org.example.enums.Posicion;
+
 /**
- * Representa un portero con estadísticas específicas adicionales.
+ * Representa un portero (goalkeeper) con estadísticas específicas adicionales.
  * <p>
  * Extiende {@link Jugador} agregando dos atributos exclusivos:
  * <ul>
  *   <li><b>Saque</b>: calidad de despejes y saques de meta</li>
  *   <li><b>Reflejos</b>: capacidad de reacción ante disparos</li>
  * </ul>
+ * <p>
+ * La posición se asigna automáticamente como {@link Posicion#PORTERIA}.
  *
  * @author HectorA15
- * @version 0.1
+ * @version 0.2
  * @see Jugador
  */
 public class Portero extends Jugador {
@@ -24,11 +28,13 @@ public class Portero extends Jugador {
     /**
      * Crea un portero con nombre especificado y estadísticas en 0.
      * <p>
+     * La posición se asigna automáticamente como {@link Posicion#PORTERIA}.
      * Usar {@link #setRandomStats()} para inicializar valores.
      *
+     * @param nombre nombre completo del portero
      */
     public Portero(String nombre) {
-        super(nombre);
+        super(nombre, Posicion.PORTERIA);
     }
 
     /**
@@ -71,6 +77,9 @@ public class Portero extends Jugador {
      */
     @Override
     public String toString() {
-        return String.format("%s %5d %5d", super.toString(), saque, reflejos);
+        String posStr = getPosicion().toString();
+        return String.format("%-25s %5d %5d %5d %5d %5d %5d %5d %10s",
+                getNombre(), getVelocidad(), getTiro(), getPase(),
+                getDefensa(), getFisico(), saque, reflejos, posStr);
     }
 }

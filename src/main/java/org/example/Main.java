@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class Main {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
 
         String[] nombresJugadores = JugadoresNombres.getJugadores();
         Random random = new Random();
@@ -38,24 +38,25 @@ public class Main {
                 Jugador jugadorTemp = new Jugador(nombresJugadores[i]);
                 jugadorTemp.setRandomStats();
 
-                if (!equipo.isFull()) {
-                    equipo.setJugador(jugadorTemp);
-                } else {
+                if (!equipo.setJugador(jugadorTemp)) {
+                    // No se pudo agregar (equipo lleno), va a reserva
                     equipo.setReserva(jugadorTemp);
                 }
             }
         }
-
-        Formacion formacionLocal = new Formacion(4,4,2);
-        Formacion formacionVisitante = new Formacion(4,4,2);
+        Formacion formacionLocal = new Formacion(4, 4, 2);
+        Formacion formacionVisitante = new Formacion(4, 4, 2);
         equipoLocal.setFormacion(formacionLocal);
         equipoVisitante.setFormacion(formacionVisitante);
-        equipoLocal.asignarPosiciones(random);
-        equipoVisitante.asignarPosiciones(random);
 
-        System.out.println("=".repeat(100)+ "\n");
+
+        equipoLocal.asignarPosiciones();
+        equipoVisitante.asignarPosiciones();
+
+        System.out.println("=".repeat(100) + "\n");
         System.out.println(equipoLocal);
-        System.out.println("=".repeat(100)+ "\n");
+        System.out.println("=".repeat(100) + "\n");
         System.out.println(equipoVisitante);
+
     }
 }
