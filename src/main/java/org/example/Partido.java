@@ -14,10 +14,9 @@ public class Partido {
     private int golesLocal;
     private int golesVisitante;
     private int duracionPartido;
-    private Eventos eventos;
+    private Eventos evento;
     Timer timer;
     Random random = new Random();
-    Eventos evento = new Eventos();
 
 
     // ============== PROBABILIDES FIJAS ===============
@@ -36,7 +35,7 @@ public class Partido {
     public Partido(Equipos local, Equipos visitante) {
         this.local = local;
         this.visitante = visitante;
-        this.eventos = new Eventos();
+        this.evento = new Eventos();
         this.minutoActual = 0;
     }
 
@@ -54,11 +53,9 @@ public class Partido {
      * de forma aleatoria.
      *
      * @param minuto
-     * @param jugadorAfectado
-     * @param jugadorDefensor
-     * @param portero
+     * @param equipoLocal
+     * @param equipoVisitante
      */
-
     private void procesarMinuto(int minuto, Equipos equipoLocal, Equipos equipoVisitante) {
         int numGenerado = random.nextInt(100);
         int prob = 0;
