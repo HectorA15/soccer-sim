@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.entidades.Portero;
 import org.example.entidades.Jugador;
-
+import java.util.Random;
 /**
  * Gestiona el RESULTADO de los eventos del partido.
  *
@@ -15,215 +15,188 @@ import org.example.entidades.Jugador;
  */
 public class Eventos {
 
+    Random random = new Random();
+
     public Eventos(){
     }
 
     // ========== EVENTOS DE GOL ==========
 
     /**
-     * Resuelve un tiro a puerta: ¿es gol o atajado?
+     * Simula un tiro normal a portería.
      *
-     * STATS RELEVANTES:
-     * - Atacante: tiro
-     * - Portero: reflejos
+     * Lógica:
+     * Compara la habilidad de tiro del atacante contra
+     * los reflejos del portero.
      *
-     * FÓRMULA SUGERIDA:
-     * probabilidad = tiro / (tiro + reflejos) * 100
-     *
-     * @param atacante quien dispara
-     * @param portero quien ataja
-     * @return true si es gol, false si es atajado
+     * Mientras mayor sea el tiro del jugador,
+     * mayor probabilidad de gol.
      */
     public boolean tiroPuerta(Jugador atacante, Portero portero) {
-        // TODO: Implementar
-        return false;
+
+        // Fórmula de probabilidad basada en stats
+        double probabilidad = (double) atacante.getTiro() /
+                (atacante.getTiro() + portero.getReflejos()) * 100;
+
+        // Se genera un número aleatorio de 0 a 100 y se compara con la probabilidad
+        return random.nextDouble() * 100 < probabilidad;
     }
 
     /**
-     * Resuelve un penal: ¿es gol o atajado/fallado?
+     * Simula un penal.
      *
-     * IMPORTANTE: Los penales son MÁS FÁCILES que tiros normales (~75-80% de éxito).
-     *
-     * OPCIONES:
-     * - Multiplicar tiro del jugador por 1.5
-     * - Reducir reflejos del portero a la mitad
-     * - Probabilidad base de 75% ajustada por diferencia de stats
-     *
-     * @param tirador quien ejecuta
-     * @param portero quien intenta atajar
-     * @return true si es gol, false si falla o es atajado
+     * Los penales en el fútbol real tienen mayor probabilidad de gol,
+     * por eso aumentamos el tiro del jugador.
      */
     public boolean penal(Jugador tirador, Portero portero) {
-        // TODO: Implementar (más fácil que tiroPuerta)
-        return false;
+
+        // Se aumenta el tiro para hacer el penal más fácil
+        double tiroAjustado = tirador.getTiro() * 1.5;
+
+        double probabilidad = tiroAjustado /
+                (tiroAjustado + portero.getReflejos()) * 100;
+
+        return random.nextDouble() * 100 < probabilidad;
     }
 
     /**
-     * Resuelve un tiro libre.
+     * Simula un tiro libre.
      *
-     * OPCIONES DE DISEÑO:
+     * Si el jugador tiene muy buen tiro,
+     * dispara directo a portería.
      *
-     * OPCIÓN 1 (Simple): Tratarlo como tiroPuerta()
-     *
-     * OPCIÓN 2 (Realista): Decidir entre disparo directo o centro
-     * - Si tiro > 75 → disparar (usar tiroPuerta)
-     * - Si no → centro al área (evaluar pase, luego duelo físico, luego tiroPuerta)
-     *
-     * @param ejecutor quien cobra el tiro libre
-     * @param portero el portero rival
-     * @return true si termina en gol, false si no
+     * Si no, intenta mandar un centro.
      */
     public boolean tiroLibre(Jugador ejecutor, Portero portero) {
-        // TODO: Implementar (usa tiroPuerta o haz versión con centro)
-        return false;
+
+        // Jugadores con alto tiro disparan directo
+        if (ejecutor.getTiro() > 75) {
+            return tiroPuerta(ejecutor, portero);
+        }
+
+        // Si no dispara, intenta centro al área
+        int probCentro = ejecutor.getPase();
+
+        boolean centroBueno = random.nextInt(100) < probCentro;
+
+        // Si el centro falla, no hay gol
+        if (!centroBueno) return false;
+
+        // Si el centro fue bueno, se intenta remate
+        return tiroPuerta(ejecutor, portero);
     }
 
     /**
-     * Resuelve un tiro de esquina (córner).
+     * Simula un tiro de esquina.
      *
-     * PROCESO SUGERIDO (2 pasos):
-     *
-     * PASO 1: ¿Quién gana el balón en el área?
-     * - Atacante: físico
-     * - Defensor: físico + defensa
-     * - Si gana defensor → return false (despeja)
-     *
-     * PASO 2: Si gana atacante, ¿es gol?
-     * - Usar tiroPuerta(atacante, portero)
-     *
-     * NOTA: Solo ~3-5% de corners terminan en gol en fútbol real.
-     *
-     * @param atacante quien intenta rematar
-     * @param defensor quien defiende
-     * @param portero quien ataja
-     * @return true si es gol, false en cualquier otro caso
+     * Tiene 2 fases:
+     * 1. Disputa aérea (físico atacante vs defensa + físico defensor)
+     * 2. Si gana el atacante, intenta rematar a gol
      */
     public boolean tiroEsquina(Jugador atacante, Jugador defensor, Portero portero) {
-        // TODO: Implementar proceso de 2 pasos
-        return false;
+
+        int fuerzaAtacante = atacante.getFisico();
+        int fuerzaDefensor = defensor.getFisico() + defensor.getDefensa();
+
+        double probabilidad = (double) fuerzaAtacante /
+                (fuerzaAtacante + fuerzaDefensor) * 100;
+
+        boolean ganaAtacante = random.nextDouble() * 100 < probabilidad;
+
+        // Si gana el defensor, se despeja el balón
+        if (!ganaAtacante) return false;
+
+        // Si gana el atacante, intenta gol
+        return tiroPuerta(atacante, portero);
     }
 
     // ========== EVENTOS DE JUEGO ==========
 
+
     /**
-     * Resuelve un saque de banda: ¿mantiene posesión?
+     * Simula un saque de banda.
      *
-     * STATS RELEVANTES:
-     * - Ejecutor: pase
-     * - Defensor: defensa + velocidad (para interceptar)
-     *
-     * @param ejecutor quien saca
-     * @param defensor quien presiona
-     * @return true si mantiene posesión, false si la pierde
+     * Se compara el pase del ejecutor
+     * contra la capacidad del defensor para interceptar.
      */
     public boolean saqueBanda(Jugador ejecutor, Jugador defensor) {
-        // TODO: Implementar
-        return false;
+
+        int ataque = ejecutor.getPase();
+        int defensa = defensor.getDefensa() + defensor.getVelocidad();
+
+        double probabilidad = (double) ataque / (ataque + defensa) * 100;
+
+        return random.nextDouble() * 100 < probabilidad;
     }
+
 
     /**
-     * Determina si hay fuera de juego en una jugada.
+     * Determina si hay fuera de juego.
      *
-     * QUÉ ES: El atacante está más adelantado que el último defensor cuando recibe el pase.
+     * Se basa en la diferencia entre:
+     * velocidad del atacante y defensa del defensor.
      *
-     * OPCIONES DE IMPLEMENTACIÓN:
-     *
-     * OPCIÓN 1 (Simple - Aleatoria):
-     * - Probabilidad fija: 10-15% de que haya fuera de juego en jugadas de ataque
-     *
-     * OPCIÓN 2 (Basada en stats):
-     * - Comparar velocidad del atacante vs defensa del defensor
-     * - Atacante más rápido → más probable que esté adelantado
-     *
-     * SUGERENCIA: Intenta usar la opcion 2, usa la opcion 1 solo si no te crees capaz.
-     *
-     * @param atacante el jugador que recibe el pase
-     * @param defensor el último defensor
-     * @return true si hay fuera de juego (se anula la jugada), false si es válida
+     * Mientras más rápido sea el atacante,
+     * mayor probabilidad de estar adelantado.
      */
     public boolean fueraDeJuego(Jugador atacante, Jugador defensor) {
-        // TODO: Implementar (opción 1 es la más simple)
-        return false;
-    }
 
+        int diferencia = atacante.getVelocidad() - defensor.getDefensa();
+
+        // Probabilidad base del 10%
+        int probabilidad = 10 + diferencia / 5;
+
+        // Se limita el rango para evitar valores irreales
+        if (probabilidad < 5) probabilidad = 5;
+        if (probabilidad > 40) probabilidad = 40;
+
+        return random.nextInt(100) < probabilidad;
+    }
     // ========== TARJETAS ==========
 
     /**
-     * Determina si se muestra tarjeta amarilla en una falta.
+     * Determina si un jugador recibe tarjeta amarilla.
      *
-     * CUÁNDO OCURRE:
-     * - Falta fuerte
-     * - Jugador con baja defensa hace falta (no sabe defender bien)
-     * - Acumulación de faltas
-     *
-     * FÓRMULA SUGERIDA:
-     * probabilidad = (100 - defensa) / 8
-     *
-     * Ejemplos:
-     * - Defensa 80 → (100-80)/8 = 2.5% de amarilla
-     * - Defensa 40 → (100-40)/8 = 7.5% de amarilla
-     *
-     * NOTA: Si un jugador ya tiene amarilla y saca otra → expulsión (roja directa)
-     *
-     * @param jugador quien comete la falta
-     * @return true si recibe tarjeta amarilla, false si no
+     * Jugadores con baja defensa tienen más probabilidad
+     * de cometer faltas peligrosas.
      */
     public boolean tarjetaAmarilla(Jugador jugador) {
-        // TODO: Implementar basándose en stat de defensa
-        return false;
+
+        double probabilidad = (100 - jugador.getDefensa()) / 8.0;
+
+        return random.nextDouble() * 100 < probabilidad;
     }
 
+
     /**
-     * Determina si se muestra tarjeta roja directa (expulsión).
+     * Determina si hay tarjeta roja directa
      *
-     * CUÁNDO OCURRE:
-     * - Falta muy grave
-     * - Jugada de último defensor (impide gol claro)
-     * - Agresión
+     * Si el jugador es ultimo defensor,
+     * aumenta considerablemente la probabilidad
      *
-     * PROBABILIDAD: Muy baja (1-2% en faltas graves)
-     *
-     * OPCIÓN SIMPLE:
-     * - Probabilidad fija de 2%
-     *
-     * OPCIÓN REALISTA:
-     * - Si es último defensor → 20%
-     * - Si es falta normal → 1%
-     *
-     * IMPORTANTE: Si un jugador es expulsado, debe salir del partido y
-     * el equipo juega con 10 jugadores (no se puede reemplazar).
-     *
-     * @param jugador quien comete la falta
-     * @param esUltimoDefensor si es falta de último defensor
-     * @return true si recibe tarjeta roja (expulsión), false si no
+     * @param jugador
+     * @return
      */
-    public boolean tarjetaRoja(Jugador jugador, boolean esUltimoDefensor) {
-        // TODO: Implementar con probabilidad baja
-        // Si esUltimoDefensor=true, aumentar probabilidad
-        return false;
+    public boolean tarjetaRoja(Jugador jugador) {
+
+        int probabilidad = 2;
+
+        return random.nextInt(100) < probabilidad;
     }
+
 
     // ========== LESIONES Y CAMBIOS ==========
 
     /**
      * Determina si un jugador se lesiona.
      *
-     * STATS RELEVANTES:
-     * - Físico del jugador (menor físico = más riesgo)
-     *
-     * FÓRMULA SUGERIDA:
-     * probabilidad = (100 - físico) / 10
-     *
-     * Ejemplos:
-     * - Físico 80 → 2% de lesión
-     * - Físico 50 → 5% de lesión
-     *
-     * @param jugador quien puede lesionarse
-     * @return true si se lesiona (debe salir), false si no
+     * Jugadores con bajo físico se lesionan más fácilmente.
      */
     public boolean lesion(Jugador jugador) {
-        // TODO: Implementar fórmula basada en físico
-        return false;
+
+        double probabilidad = (100 - jugador.getFisico()) / 10.0;
+
+        return random.nextDouble() * 100 < probabilidad;
     }
 
     /**

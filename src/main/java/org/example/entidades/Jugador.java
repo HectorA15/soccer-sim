@@ -16,6 +16,10 @@ public class Jugador {
     private int defensa;
     private int fisico;
     private int dorsal;
+
+    private int lesiones;
+    private int tarjetasAmarillas;
+    private int tarjetasRojas;
     /**
      * Constructor básico: solo nombre, stats en 0.
      * Debes llamar a setRandomStats() o usar los setters para asignar valores.
@@ -76,6 +80,18 @@ public class Jugador {
         this.dorsal = dorsal;
     }
 
+    public void setLesiones(int lesiones) {
+        this.lesiones = lesiones;
+    }
+
+    public void setTarjetasAmarillas(int tarjetasAmarillas) {
+        this.tarjetasAmarillas = tarjetasAmarillas;
+    }
+
+    public void setTarjetasRojas(int tarjetasRojas) {
+        this.tarjetasRojas = tarjetasRojas;
+    }
+
     // ===== GETTERS =====
 
     public String getNombre() {
@@ -108,6 +124,18 @@ public class Jugador {
 
     public int getDorsal() {
         return dorsal;
+    }
+
+    public int getLesiones() {
+        return lesiones;
+    }
+
+    public int getTarjetasAmarillas() {
+        return tarjetasAmarillas;
+    }
+
+    public int getTarjetasRojas() {
+        return tarjetasRojas;
     }
     /**
      * Asigna valores aleatorios (1-100) a todas las estadísticas.
