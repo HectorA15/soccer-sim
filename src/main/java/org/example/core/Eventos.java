@@ -1,4 +1,4 @@
-package org.example;
+package org.example.core;
 
 import org.example.entidades.Portero;
 import org.example.entidades.Jugador;
@@ -199,56 +199,6 @@ public class Eventos {
         return random.nextDouble() * 100 < probabilidad;
     }
 
-    /**
-     * Realiza un cambio (sustitución).
-     *
-     * PROBLEMA: Este metdo necesita modificar las listas del equipo.
-     *
-     * SOLUCIONES:
-     *
-     * OPCIÓN 1: Moverlo a la clase Equipos
-     * - Equipos.realizarCambio(Jugador sale, Jugador entra)
-     * - Tiene sentido porque Equipos tiene las listas
-     *
-     * OPCIÓN 2: Hacer que este metdo reciba el Equipo
-     * - cambio(Equipos equipo, Jugador sale, Jugador entra)
-     *
-     * VALIDACIONES NECESARIAS:
-     * - El que sale debe estar en titulares
-     * - El que entra debe estar en reserva
-     * - Máximo 5 cambios por partido
-     * - No se puede reemplazar a un expulsado (el equipo queda con menos jugadores)
-     *
-     * @param sale quien sale de la cancha
-     * @param entra quien entra de la banca
-     * @return true si el cambio es válido, false si no
-     */
-    public boolean cambio(Jugador sale, Jugador entra) {
-        // TODO: Considerar mover este método a Equipos.java
-        // O cambiar la firma para recibir Equipos
-        return false;
-    }
 
-    /**
-     * Cambia la formación táctica durante el partido.
-     *
-     * CUÁNDO ES ÚTIL:
-     * - Equipo va perdiendo → formación ofensiva (ej: 3-3-4)
-     * - Equipo va ganando → formación defensiva (ej: 5-4-1)
-     * - Hay expulsión → ajustar formación (ej: de 4-4-2 a 4-3-2)
-     *
-     * LÓGICA:
-     * 1. Cambiar la formación del equipo
-     * 2. Reasignar posiciones de los jugadores
-     *
-     * NOTA: Similar a cambio(), este metdo necesita acceso al Equipo.
-     * Considera moverlo a Equipos.java o agregarlo en Partido.java
-     *
-     * @return true si se realizó el cambio
-     */
-    public boolean cambioPosiciones() {
-        // TODO: Considerar mover este método a Equipos.java
-        // O implementarlo directamente en Partido.java
-        return false;
-    }
+
 }

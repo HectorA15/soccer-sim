@@ -199,6 +199,58 @@ public class Equipos {
         asignarPosiciones();
     }
 
+    /**
+     * Realiza un cambio (sustitución).
+     *
+     * PROBLEMA: Este metdo necesita modificar las listas del equipo.
+     *
+     * SOLUCIONES:
+     *
+     * OPCIÓN 1: Moverlo a la clase Equipos
+     * - Equipos.realizarCambio(Jugador sale, Jugador entra)
+     * - Porque en esta clase? porque Equipos tiene las listas
+     *
+     * VALIDACIONES NECESARIAS:
+     * - El que sale debe estar en titulares
+     * - El que entra debe estar en reserva
+     * - Máximo 5 cambios por partido
+     * - No se puede reemplazar a un expulsado (el equipo queda con menos jugadores)
+     *
+     *  INTENTA NO USAR CHATGPT HAZLO COMO PUEDAS, A TU FORMA, PERO AVISA SI VAS A MODIFICAR OTRAS CLASES Y EL QUE
+     *
+     * @param sale quien sale de la cancha
+     * @param entra quien entra de la banca
+     * @return true si el cambio es válido, false si no
+     */
+    public boolean cambio(Jugador sale, Jugador entra) {
+        // TODO:
+        return false;
+    }
+
+    /**
+     * Cambia la formación táctica durante el partido.
+     *
+     * CUÁNDO ES ÚTIL:
+     * - Equipo va perdiendo → formación ofensiva (ej: 3-3-4)
+     * - Equipo va ganando → formación defensiva (ej: 5-4-1)
+     * - Hay expulsión → ajustar formación (ej: de 4-4-2 a 4-3-2)
+     *
+     * LÓGICA:
+     * 1. Cambiar la formación del equipo
+     * 2. Reasignar posiciones de los jugadores existentes en la lista titulares
+     *
+     * NOTA: Similar a cambio(), este metdo necesita acceso al Equipo.
+     * Considera moverlo a Equipos.java o agregarlo en Partido.java
+     *
+     * INTENTA NO USAR CHATGPT HAZLO COMO PUEDAS, A TU FORMA, PERO AVISA SI VAS A MODIFICAR OTRAS CLASES Y EL QUE
+     *
+     * @return true si se realizó el cambio
+     */
+    public boolean cambioPosiciones() {
+        // TODO:
+        return false;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

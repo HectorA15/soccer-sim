@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.core.Partido;
 import org.example.entidades.Equipos;
 import org.example.entidades.Formacion;
 import org.example.entidades.Jugador;
@@ -92,6 +93,9 @@ public class Main {
         System.out.println(equipoLocal);
         System.out.println("=".repeat(100) + "\n");
         System.out.println(equipoVisitante);
+
+        Partido partido = new Partido(equipoLocal, equipoVisitante);
+        partido.simular();
     }
 
     /**
