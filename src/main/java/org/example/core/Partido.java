@@ -169,7 +169,13 @@ public class Partido {
             if (evento.tarjetaRoja(jugadorAfectado)) {
                 tarjetasRojas++;
                 jugadorAfectado.setTarjetasRojas(tarjetasRojas);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                
+                // Expulsar al jugador (no puede ser reemplazado)
+                equipoAfectado.expulsarJugador(jugadorAfectado);
+                
+                return minutoActual + ": Tarjeta Roja! " + jugadorAfectado.getNombre() + 
+                       " ha sido expulsado! " + equipoAfectado.getNombre() + 
+                       " juega con " + equipoAfectado.getJugadores().length + " jugadores.";
             } else {
                 return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
             }
@@ -185,7 +191,18 @@ public class Partido {
             if (evento.lesion(jugadorAfectado)) {
                 lesiones++;
                 jugadorAfectado.setLesiones(lesiones);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                
+                // Intentar sustituir al jugador lesionado
+                boolean sustituido = equipoAfectado.sustituirPorLesion(jugadorAfectado);
+                
+                if (sustituido) {
+                    return minutoActual + ": Lesion! " + jugadorAfectado.getNombre() + 
+                           " se ha lesionado y es sustituido. Cambios restantes: " + 
+                           equipoAfectado.getCambiosDisponibles();
+                } else {
+                    return minutoActual + ": Lesion! " + jugadorAfectado.getNombre() + 
+                           " se ha lesionado pero no hay suplentes disponibles!";
+                }
             } else {
                 return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
             }

@@ -18,6 +18,8 @@ public class Equipos {
     private Formacion formacion;
     private final List<Jugador> jugadores = new ArrayList<>(10);
     private final List<Jugador> reserva = new ArrayList<>();
+    private int cambiosRealizados = 0;
+    private static final int MAX_CAMBIOS = 5;
 
     public Equipos() {
     }
@@ -202,29 +204,114 @@ public class Equipos {
     /**
      * Realiza un cambio (sustitución).
      *
-     * PROBLEMA: Este metdo necesita modificar las listas del equipo.
-     *
-     * SOLUCIONES:
-     *
-     * OPCIÓN 1: Moverlo a la clase Equipos
-     * - Equipos.realizarCambio(Jugador sale, Jugador entra)
-     * - Porque en esta clase? porque Equipos tiene las listas
-     *
-     * VALIDACIONES NECESARIAS:
+     * VALIDACIONES:
      * - El que sale debe estar en titulares
      * - El que entra debe estar en reserva
      * - Máximo 5 cambios por partido
      * - No se puede reemplazar a un expulsado (el equipo queda con menos jugadores)
-     *
-     *  INTENTA NO USAR CHATGPT HAZLO COMO PUEDAS, A TU FORMA, PERO AVISA SI VAS A MODIFICAR OTRAS CLASES Y EL QUE
      *
      * @param sale quien sale de la cancha
      * @param entra quien entra de la banca
      * @return true si el cambio es válido, false si no
      */
     public boolean cambio(Jugador sale, Jugador entra) {
-        // TODO:
-        return false;
+        // Validar que no se ha excedido el máximo de cambios
+        if (cambiosRealizados >= MAX_CAMBIOS) {
+            return false;
+        }
+        
+        // Validar que el jugador que sale está en titulares
+        if (!jugadores.contains(sale)) {
+            return false;
+        }
+        
+        // Validar que el jugador que entra está en reserva
+        if (!reserva.contains(entra)) {
+            return false;
+        }
+        
+        // Guardar la posición del jugador que sale
+        Posicion posicionAnterior = sale.getPosicion();
+        
+        // Realizar el cambio
+        jugadores.remove(sale);
+        reserva.remove(entra);
+        
+        jugadores.add(entra);
+        reserva.add(sale);
+        
+        // Asignar la misma posición al jugador que entra
+        entra.setPosicion(posicionAnterior);
+        
+        // Incrementar contador de cambios
+        cambiosRealizados++;
+        
+        return true;
+    }
+
+    /**
+     * Expulsa a un jugador por tarjeta roja.
+     * El jugador es removido del campo y NO puede ser reemplazado.
+     * El equipo queda con menos jugadores.
+     *
+     * @param jugador el jugador expulsado
+     * @return true si el jugador fue expulsado, false si no estaba en titulares
+     */
+    public boolean expulsarJugador(Jugador jugador) {
+        if (!jugadores.contains(jugador)) {
+            return false;
+        }
+        
+        // Remover del campo sin agregar a reserva
+        jugadores.remove(jugador);
+        return true;
+    }
+
+    /**
+     * Realiza una sustitución por lesión automática.
+     * Busca un suplente de la misma posición si es posible.
+     * Si no hay suplente de la misma posición, busca cualquier suplente.
+     *
+     * @param lesionado el jugador lesionado
+     * @return true si se realizó el cambio, false si no había suplentes disponibles
+     */
+    public boolean sustituirPorLesion(Jugador lesionado) {
+        if (!jugadores.contains(lesionado)) {
+            return false;
+        }
+        
+        if (reserva.isEmpty()) {
+            return false;
+        }
+        
+        // Intentar encontrar un suplente de la misma posición
+        Posicion posicionLesionado = lesionado.getPosicion();
+        Jugador sustituto = null;
+        
+        if (posicionLesionado != null) {
+            for (Jugador r : reserva) {
+                if (r.getPosicion() == posicionLesionado) {
+                    sustituto = r;
+                    break;
+                }
+            }
+        }
+        
+        // Si no hay suplente de la misma posición, tomar el primero disponible
+        if (sustituto == null) {
+            sustituto = reserva.get(0);
+        }
+        
+        // Realizar el cambio
+        return cambio(lesionado, sustituto);
+    }
+
+    public int getCambiosRealizados() {
+        return cambiosRealizados;
+    }
+
+    public int getCambiosDisponibles() {
+        return MAX_CAMBIOS - cambiosRealizados;
     }
 
     /**
