@@ -10,23 +10,22 @@ import java.util.TimerTask;
 
 public class Partido {
     // ============== % PROBABILIDADES FIJAS ===============
-    private static final double SAQUE_DE_BANDA = 30;
-    private static final double PROB_TIRO_LIBRE = 17;
-    private static final double PROB_TIRO_EQUINA = 10;
-    private static final double PROB_TIRO_A_PUERTA = 9;
-    private static final double PROB_TARJETA_AMARILLA = 7;
-    private static final double FUERA_DE_JUEGO = 6;
-    private static final double LESION = 5;
-    private static final double PROB_PENAL = 3;
-    private static final double PROB_TARJETA_ROJA = 1;
-    Timer timer;
-    Random random = new Random();
+    private static final double SAQUE_DE_BANDA = 12;
+    private static final double PROB_TIRO_LIBRE = 10;
+    private static final double PROB_TIRO_EQUINA = 5;
+    private static final double PROB_TIRO_A_PUERTA = 4;
+    private static final double PROB_TARJETA_AMARILLA = 4;
+    private static final double FUERA_DE_JUEGO = 3;
+    private static final double LESION = 2;
+    private static final double PROB_PENAL = 1;
+    private static final double PROB_TARJETA_ROJA = 90;
     private final Equipos local;
     private final Equipos visitante;
-    private int minuto;
-    private int duracionPartido;
     private final Eventos evento;
-
+    Timer timer;
+    Random random = new Random();
+    private int minuto;
+    private final int duracionPartido;
 
     public Partido(Equipos local, Equipos visitante) {
         this.local = local;
@@ -64,23 +63,12 @@ public class Partido {
 
         timer.scheduleAtFixedRate(tareaCadaSegundo, 0, 1000);
     }
-    /**
-     * Procesa un minuto del partido.
-     * <p>
-     * Cada minuto tiene una probabilidad de que
-     * ocurra un evento diferente.
-     * <p>
-     * Los jugadores afectados y los defensores deben recibirse
-     * de forma aleatoria.
-     *
-     * @param minutoActual
-     * @param equipoLocal
-     * @param equipoVisitante
-     */
+
+    // ... existing code ...
+
     private String procesarMinuto(int minutoActual, Equipos equipoLocal, Equipos equipoVisitante) {
         int numGenerado = random.nextInt(100);
         double prob = 0;
-
 
         // ===== CREACION DE EQUIPOS Y JUGADORES INVOLUCRADOS =====
         Jugador jugadorAfectado;
@@ -111,50 +99,59 @@ public class Partido {
         int tarjetasRojas = jugadorAfectado.getTarjetasRojas();
         int lesiones = jugadorAfectado.getLesiones();
 
-
         // ======================== SE PROCESAN LOS EVENTOS ==========================
         if (numGenerado < (prob += PROB_TIRO_A_PUERTA)) {
             if (evento.tiroPuerta(jugadorAfectado, porteroDefensor)) {
                 goles++;
                 equipoAfectado.setGoles(goles);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " +
+                        jugadorAfectado.getNombre() +
+                        " dispara y marca gol para " + equipoAfectado.getNombre();
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " +
+                        jugadorAfectado.getNombre() +
+                        " dispara, pero " + porteroDefensor.getNombre() + " ataja el balón";
             }
 
         } else if (numGenerado < (prob += PROB_PENAL)) {
             if (evento.penal(jugadorAfectado, porteroDefensor)) {
                 goles++;
                 equipoAfectado.setGoles(goles);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " +
+                        "GOOOOOOOOL!!!! DE " +
+                        jugadorAfectado.getNombre() + "PARA LAS " + equipoAfectado.getNombre();
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " +
+                        "LO PARO LO PARO SEÑORES LO PARO!!!! " + porteroDefensor.getNombre() + " ATAJO INCREIBLEMENTE";
             }
 
         } else if (numGenerado < (prob += PROB_TIRO_LIBRE)) {
             if (evento.tiroLibre(jugadorAfectado, porteroDefensor)) {
                 goles++;
                 equipoAfectado.setGoles(goles);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " +
+                        "GOLAZOOOOOOO DE " + jugadorAfectado.getNombre() + " PARA " + equipoAfectado.getNombre();
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: "
+                        + "NOOOOO QUE LERDOOOO " + jugadorAfectado.getNombre() + " FALLO TERRIBLEMENTE";
             }
 
         } else if (numGenerado < (prob += PROB_TIRO_EQUINA)) {
             if (evento.tiroEsquina(jugadorAfectado, jugadorDefensor, porteroDefensor)) {
                 goles++;
                 equipoAfectado.setGoles(goles);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " +
+                        "QUE BUEN TIRAZOOOOO DE " + jugadorAfectado.getNombre();
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " + "VAYAAA JUGADOR " + jugadorDefensor.getNombre() +
+                        " QUE DEFENSAAA DIOS MIO";
             }
 
         } else if (numGenerado < (prob += SAQUE_DE_BANDA)) {
             if (evento.saqueBanda(jugadorAfectado, jugadorDefensor)) {
-                //TODO: no afecta al partido solo va generar un texto si sale bien o mal el saque de banda
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " + jugadorAfectado.getNombre() + " saque exitoso...";
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " + jugadorDefensor.getNombre() + " recibe el saque...";
             }
 
         } else if (numGenerado < (prob += PROB_TARJETA_AMARILLA)) {
@@ -163,35 +160,34 @@ public class Partido {
                 jugadorAfectado.setTarjetasAmarillas(tarjetasAmarillas);
                 return minutoActual + ": " + "Tarjeta Amarilla! " + jugadorAfectado.getNombre() + " No parece muy contento...";
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual;
             }
         } else if (numGenerado < (prob += PROB_TARJETA_ROJA)) {
             if (evento.tarjetaRoja(jugadorAfectado)) {
                 tarjetasRojas++;
                 jugadorAfectado.setTarjetasRojas(tarjetasRojas);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " + "Tarjeta roja!!!, para " + jugadorAfectado.getNombre();
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual;
             }
 
         } else if (numGenerado < (prob += FUERA_DE_JUEGO)) {
             if (evento.fueraDeJuego(jugadorAfectado, jugadorDefensor)) {
                 return minutoActual + ": " + jugadorAfectado.getNombre() + " estaba en una posicion adelantada, Se anula la jugada!";
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual;
             }
 
         } else if (numGenerado < (prob += LESION)) {
             if (evento.lesion(jugadorAfectado)) {
                 lesiones++;
                 jugadorAfectado.setLesiones(lesiones);
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual + "\t: " + "uuuh el jugador " + jugadorAfectado.getNombre() + " cae lesionado ";
             } else {
-                return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+                return "minuto " + minutoActual;
             }
         } else {
-            return "minuto " + minutoActual + "\t: " + "llenar de texto aqui";
+            return "minuto " + minutoActual;
         }
-
     }
 }

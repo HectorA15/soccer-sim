@@ -178,10 +178,8 @@ public class Eventos {
      * @return
      */
     public boolean tarjetaRoja(Jugador jugador) {
-
-        int probabilidad = 2;
-
-        return random.nextInt(100) < probabilidad;
+        jugador.setTarjetasRojas(jugador.getTarjetasRojas() + 1);
+        return true;
     }
 
 
