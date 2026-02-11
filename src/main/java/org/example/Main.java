@@ -23,7 +23,7 @@ import java.util.List;
 public class Main {
 
     /**
-     * Método principal que genera dos equipos balanceados.
+     * Metdo principal que genera dos equipos balanceados.
      *
      * ALGORITMO DE DISTRIBUCIÓN:
      * 1. Obtiene 30 nombres de jugadores predefinidos

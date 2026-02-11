@@ -19,6 +19,19 @@ public class Equipos {
     private final List<Jugador> jugadores = new ArrayList<>(10);
     private final List<Jugador> reserva = new ArrayList<>();
 
+    /**
+     * Contador de cambios realizados durante el partido.
+     * Se incrementa cada vez que se hace una sustitución exitosa.
+     * Se usa para validar el límite de MAX_CAMBIOS.
+     */
+    private int cambiosRealizados = 0;
+
+    /**
+     * Límite máximo de cambios permitidos por partido según reglas FIFA.
+     * Nota: En algunas competiciones puede variar (ej: 3 cambios en vez de 5).
+     */
+    private static final int MAX_CAMBIOS = 5;
+
     public Equipos() {
     }
 
@@ -64,6 +77,7 @@ public class Equipos {
         this.jugadores.add(jugador);
         return true;
     }
+
     public Jugador getJugadorRandom() {
         return jugadores.get((int) (Math.random() * jugadores.size()));
     }
@@ -200,89 +214,143 @@ public class Equipos {
     }
 
     /**
-     * Realiza un cambio (sustitución).
+     * Realiza una sustitución de jugadores durante el partido.
+     * <p>
+     * VALIDACIONES que aplica:
+     * - Máximo 5 cambios por partido (regla FIFA)
+     * - El jugador que sale debe estar en titulares
+     * - El jugador que entra debe estar en reserva
+     * <p>
+     * Cómo funciona:
+     * 1. Verifica que no se hayan alcanzado los MAX_CAMBIOS (5)
+     * 2. Confirma que 'sale' está en la lista de titulares
+     * 3. Confirma que 'entra' está en la lista de reserva
+     * 4. Intercambia sus posiciones: 'sale' va a reserva, 'entra' a titulares
+     * 5. Incrementa el contador de cambios
+     * <p>
+     * IMPORTANTE: Después de un cambio exitoso, es recomendable llamar
+     * asignarPosiciones() si quieres que el jugador entrante tome
+     * la posición correcta según la formación actual.
+     * <p>
+     * NOTA: No valida si un jugador está expulsado (tarjeta roja).
+     * Esa lógica debe implementarse en otra parte (ej: clase Jugador
+     * con un estado isExpulsado).
+     * <p>
+     * Ejemplo de uso:
+     * <pre>
+     * Jugador cansado = equipo.getJugador(5);
+     * Jugador fresco = equipo.getReserva(0);
      *
-     * PROBLEMA: Este metdo necesita modificar las listas del equipo.
+     * if (equipo.cambio(cansado, fresco)) {
+     *     System.out.println("Cambio exitoso");
+     *     equipo.asignarPosiciones();  // Actualizar posiciones
+     * } else {
+     *     System.out.println("Cambio inválido o sin cambios disponibles");
+     * }
+     * </pre>
      *
-     * SOLUCIONES:
-     *
-     * OPCIÓN 1: Moverlo a la clase Equipos
-     * - Equipos.realizarCambio(Jugador sale, Jugador entra)
-     * - Porque en esta clase? porque Equipos tiene las listas
-     *
-     * VALIDACIONES NECESARIAS:
-     * - El que sale debe estar en titulares
-     * - El que entra debe estar en reserva
-     * - Máximo 5 cambios por partido
-     * - No se puede reemplazar a un expulsado (el equipo queda con menos jugadores)
-     *
-     *  INTENTA NO USAR CHATGPT HAZLO COMO PUEDAS, A TU FORMA, PERO AVISA SI VAS A MODIFICAR OTRAS CLASES Y EL QUE
-     *
-     * @param sale quien sale de la cancha
-     * @param entra quien entra de la banca
-     * @return true si el cambio es válido, false si no
+     * @param sale  jugador que sale de la cancha (debe estar en titulares)
+     * @param entra jugador que entra a la cancha (debe estar en reserva)
+     * @return true si el cambio se realizó exitosamente, false si no cumple validaciones
      */
     public boolean cambio(Jugador sale, Jugador entra) {
-        // TODO:
-        return false;
+
+        if (cambiosRealizados >= MAX_CAMBIOS) {
+            return false;
+        }
+
+        if (!jugadores.contains(sale)) {
+            return false;
+        }
+
+        if (!reserva.contains(entra)) {
+            return false;
+        }
+
+        jugadores.remove(sale);
+        reserva.remove(entra);
+
+        jugadores.add(entra);
+        reserva.add(sale);
+
+        cambiosRealizados++;
+
+        return true;
     }
 
     /**
-     * Cambia la formación táctica durante el partido.
-     *
+     * Reasigna las posiciones de los jugadores según la formación actual.
+     * <p>
      * CUÁNDO ES ÚTIL:
-     * - Equipo va perdiendo → formación ofensiva (ej: 3-3-4)
-     * - Equipo va ganando → formación defensiva (ej: 5-4-1)
-     * - Hay expulsión → ajustar formación (ej: de 4-4-2 a 4-3-2)
+     * - Después de un cambio de jugador (para que el sustituto tome posición)
+     * - Cuando el entrenador cambia de formación táctica (ver setFormacion())
+     * - Para reorganizar posiciones sin modificar la lista de titulares
+     * <p>
+     * Cómo funciona:
+     * 1. Verifica que exista una formación asignada
+     * 2. Llama a asignarPosiciones() para redistribuir roles
+     * <p>
+     * IMPORTANTE: Este metdo NO cambia la formación, solo reasigna posiciones.
+     * Si quieres cambiar de formación (ej: de 4-4-2 a 5-3-2), debes llamar
+     * primero a setFormacion() y LUEGO a cambioPosiciones().
+     * <p>
+     * Ejemplo de uso estratégico:
+     * <pre>
+     * // Escenario: Vas perdiendo 2-0 al minuto 70
+     * equipo.setFormacion(new Formacion(3, 3, 4));  // Formación ofensiva
+     * equipo.cambioPosiciones();                     // Aplica cambios
      *
-     * LÓGICA:
-     * 1. Cambiar la formación del equipo
-     * 2. Reasignar posiciones de los jugadores existentes en la lista titulares
+     * // Escenario: Vas ganando 1-0 al minuto 85
+     * equipo.setFormacion(new Formacion(5, 4, 1));  // Formación defensiva
+     * equipo.cambioPosiciones();                     // Aplica cambios
+     * </pre>
      *
-     * NOTA: Similar a cambio(), este metdo necesita acceso al Equipo.
-     * Considera moverlo a Equipos.java o agregarlo en Partido.java
-     *
-     * INTENTA NO USAR CHATGPT HAZLO COMO PUEDAS, A TU FORMA, PERO AVISA SI VAS A MODIFICAR OTRAS CLASES Y EL QUE
-     *
-     * @return true si se realizó el cambio
+     * @return true si se reasignaron las posiciones, false si no hay formación definida
      */
     public boolean cambioPosiciones() {
-        // TODO:
-        return false;
+
+        if (formacion == null) {
+            return false;
+        }
+
+        asignarPosiciones();
+        return true;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("\"").append(this.nombre).append("\"").append("\n");
+
         if (formacion != null) {
             sb.append("Formación: ").append(formacion).append("\n");
         }
+
         sb.append("\n");
         sb.append(" ".repeat(35)).append("Equipo ")
                 .append(isLocal ? "Local" : "Visitante").append("\n\n");
 
-        // Header para PORTERO
-        sb.append("PORTERO").append("\n");
+        sb.append("PORTERO\n");
         sb.append(String.format("%-25s %5s %5s %5s %5s %5s %5s %5s %10s\n\n",
                 "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Saq", "Ref", "Posición"));
         sb.append(portero).append("\n\n");
 
-        // Header para JUGADORES
-        sb.append("JUGADORES").append("\n");
+        sb.append("JUGADORES\n");
         sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s\n\n",
                 "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición"));
+
         for (Jugador jugador : jugadores) {
             sb.append(jugador).append("\n");
         }
 
-        sb.append("\n");
-        sb.append("RESERVA").append("\n");
+        sb.append("\nRESERVA\n");
         sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s\n\n",
                 "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición"));
+
         for (Jugador jugador : reserva) {
             sb.append(jugador).append("\n");
         }
+
         return sb.toString();
     }
 }

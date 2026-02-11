@@ -5,7 +5,7 @@ import java.util.Arrays;
 public final class JugadoresNombres {
 
 
-    private JugadoresNombres(){
+    public JugadoresNombres(){
 
     }
 

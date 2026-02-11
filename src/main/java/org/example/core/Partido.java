@@ -18,7 +18,8 @@ public class Partido {
     private static final double FUERA_DE_JUEGO = 3;
     private static final double LESION = 2;
     private static final double PROB_PENAL = 1;
-    private static final double PROB_TARJETA_ROJA = 90;
+    private static final double PROB_TARJETA_ROJA = 1;
+
     private final Equipos local;
     private final Equipos visitante;
     private final Eventos evento;
@@ -64,7 +65,6 @@ public class Partido {
         timer.scheduleAtFixedRate(tareaCadaSegundo, 0, 1000);
     }
 
-    // ... existing code ...
 
     private String procesarMinuto(int minutoActual, Equipos equipoLocal, Equipos equipoVisitante) {
         int numGenerado = random.nextInt(100);
