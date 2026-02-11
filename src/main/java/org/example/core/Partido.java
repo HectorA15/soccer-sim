@@ -196,11 +196,11 @@ public class Partido {
                 boolean sustituido = equipoAfectado.sustituirPorLesion(jugadorAfectado);
                 
                 if (sustituido) {
-                    return minutoActual + ": Lesion! " + jugadorAfectado.getNombre() + 
+                    return minutoActual + ": Lesión! " + jugadorAfectado.getNombre() + 
                            " se ha lesionado y es sustituido. Cambios restantes: " + 
                            equipoAfectado.getCambiosDisponibles();
                 } else {
-                    return minutoActual + ": Lesion! " + jugadorAfectado.getNombre() + 
+                    return minutoActual + ": Lesión! " + jugadorAfectado.getNombre() + 
                            " se ha lesionado pero no hay suplentes disponibles!";
                 }
             } else {
