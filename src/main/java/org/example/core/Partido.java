@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.Timer;
 
 public class Partido {
-    // ============== % PROBABILIDADES FIJAS ===============
+    // ===== PROBABILIDADES =====
     private static final double SAQUE_DE_BANDA = 12;
     private static final double PROB_TIRO_LIBRE = 10;
     private static final double PROB_TIRO_EQUINA = 5;
@@ -30,6 +30,7 @@ public class Partido {
     private final int minuto;
 
 
+    // ===== CONSTRUCTORES =====
     public Partido(Equipos local, Equipos visitante) {
         this.equipoLocal = local;
         this.equipoVisitante = visitante;
@@ -40,6 +41,7 @@ public class Partido {
         this.timer = new Timer();
     }
 
+    // ===== GETTERS =====
     public Equipos getEquipoLocal() {
         return equipoLocal;
     }
@@ -48,82 +50,44 @@ public class Partido {
         return equipoVisitante;
     }
 
+    // ===== METODOS PUBLICOS =====
     public Partido crearPartido() {
         String[] nombresJugadores = JugadoresNombres.getJugadores();
 
-        // Crear equipos vacíos
         Equipos equipoLocal = getEquipoLocal();
         equipoLocal.setLocal(true);
 
         Equipos equipoVisitante = getEquipoVisitante();
         equipoVisitante.setLocal(false);
 
-        // ===== PASO 1: MEZCLAR NOMBRES ALEATORIAMENTE =====
-        // Convertimos el array a List porque Collections.shuffle() solo funciona con listas
         List<String> nombresList = Arrays.asList(nombresJugadores);
-        Collections.shuffle(nombresList);  // Orden aleatorio cada vez que se ejecuta
+        Collections.shuffle(nombresList);
 
-        // ===== PASO 2: DIVIDIR EN DOS MITADES =====
-        int mitad = nombresList.size() / 2;  // Con 30 jugadores: mitad = 15
+        int mitad = nombresList.size() / 2;
 
-        // ===== PASO 3: ASIGNAR PRIMERA MITAD AL EQUIPO LOCAL =====
-        // Índices 0-14 (15 jugadores)
         for (int i = 0; i < mitad; i++) {
             agregarJugador(equipoLocal, nombresList.get(i));
         }
 
-        // ===== PASO 4: ASIGNAR SEGUNDA MITAD AL EQUIPO VISITANTE =====
-        // Índices 15-29 (15 jugadores)
         for (int i = mitad; i < nombresList.size(); i++) {
             agregarJugador(equipoVisitante, nombresList.get(i));
         }
 
-        // ===== PASO 5: CONFIGURAR FORMACIONES =====
-        // Ambos equipos usan 4-4-2 (4 defensas, 4 mediocampistas, 2 delanteros)
         Formacion formacionLocal = new Formacion(4, 4, 2);
         Formacion formacionVisitante = new Formacion(4, 4, 2);
         equipoLocal.setFormacion(formacionLocal);
         equipoVisitante.setFormacion(formacionVisitante);
 
-        // ===== PASO 6: ASIGNAR POSICIONES SEGÚN FORMACIÓN =====
-        // Esto asigna DEFENSA/MEDIOCAMP/DELANTERO a cada jugador titular
-        // basándose en la formación configurada
         equipoLocal.asignarPosiciones();
         equipoVisitante.asignarPosiciones();
 
-        // ===== PASO 8: CREAR PARTIDO =====
-        Partido partido = new Partido(equipoLocal, equipoVisitante);
-        return partido;
+        return new Partido(equipoLocal, equipoVisitante);
     }
-
-
-
-    private void agregarJugador(Equipos equipo, String nombre) {
-        if (!equipo.isPortero()) {
-            // Este equipo aún no tiene portero, crear uno
-            Portero porteroTemp = new Portero(nombre);
-            porteroTemp.setRandomStats();  // Stats aleatorias (incluyendo saque y reflejos)
-            equipo.setPortero(porteroTemp);
-
-        } else {
-            // Ya hay portero, crear jugador de campo
-            Jugador jugadorTemp = new Jugador(nombre);
-            jugadorTemp.setRandomStats();  // Stats aleatorias (5 básicas)
-
-            // Intentar agregar como titular
-            if (!equipo.setJugador(jugadorTemp)) {
-                // No se pudo agregar (ya hay 10 titulares), va a reserva
-                equipo.setReserva(jugadorTemp);
-            }
-        }
-    }
-
 
     public String procesarMinuto(int minutoActual, Equipos equipoLocal, Equipos equipoVisitante) {
         int numGenerado = random.nextInt(100);
         double prob = 0;
         String mensaje;
-        // ===== CREACION DE EQUIPOS Y JUGADORES INVOLUCRADOS =====
         Jugador jugadorAfectado;
         Jugador jugadorDefensor;
         Equipos equipoAfectado;
@@ -213,7 +177,7 @@ public class Partido {
                 jugadorAfectado.setTarjetasAmarillas(tarjetasAmarillas);
                 return minutoActual + ": " + "Tarjeta Amarilla! " + jugadorAfectado.getNombre() + " No parece muy contento...";
             } else {
-                return "minuto " + minutoActual;
+                return "minuto " + minutoActual + "\t: " + "";
             }
         } else if (numGenerado < (prob += PROB_TARJETA_ROJA)) {
             if (evento.tarjetaRoja(jugadorAfectado)) {
@@ -221,14 +185,14 @@ public class Partido {
                 jugadorAfectado.setTarjetasRojas(tarjetasRojas);
                 return "minuto " + minutoActual + "\t: " + "Tarjeta roja!!!, para " + jugadorAfectado.getNombre();
             } else {
-                return "minuto " + minutoActual;
+                return "minuto " + minutoActual + "\t: " + "";
             }
 
         } else if (numGenerado < (prob += FUERA_DE_JUEGO)) {
             if (evento.fueraDeJuego(jugadorAfectado, jugadorDefensor)) {
                 return minutoActual + ": " + jugadorAfectado.getNombre() + " estaba en una posicion adelantada, Se anula la jugada!";
             } else {
-                return "minuto " + minutoActual;
+                return "minuto " + minutoActual + "\t: " + "";
             }
 
         } else if (numGenerado < (prob += LESION)) {
@@ -237,10 +201,27 @@ public class Partido {
                 jugadorAfectado.setLesiones(lesiones);
                 return "minuto " + minutoActual + "\t: " + "uuuh el jugador " + jugadorAfectado.getNombre() + " cae lesionado ";
             } else {
-                return "minuto " + minutoActual;
+                return "minuto " + minutoActual + "\t: " + "";
             }
         } else {
-            return "minuto " + minutoActual;
+            return "minuto " + minutoActual + "\t: " + "";
+        }
+    }
+
+    // ===== HELPERS PRIVADOS =====
+    private void agregarJugador(Equipos equipo, String nombre) {
+        if (!equipo.isPortero()) {
+            Portero porteroTemp = new Portero(nombre);
+            porteroTemp.setRandomStats();
+            equipo.setPortero(porteroTemp);
+
+        } else {
+            Jugador jugadorTemp = new Jugador(nombre);
+            jugadorTemp.setRandomStats();
+
+            if (!equipo.setJugador(jugadorTemp)) {
+                equipo.setReserva(jugadorTemp);
+            }
         }
     }
 }

@@ -22,19 +22,13 @@ public class Equipos {
     private final List<Jugador> jugadores = new ArrayList<>(10);
     private final List<Jugador> reserva = new ArrayList<>();
 
-    /**
-     * Contador de cambios realizados durante el partido.
-     * Se incrementa cada vez que se hace una sustitución exitosa.
-     * Se usa para validar el límite de MAX_CAMBIOS.
-     */
+    // Contador de cambios realizados en el partido.
     private int cambiosRealizados = 0;
 
-    /**
-     * Límite máximo de cambios permitidos por partido según reglas FIFA.
-     * Nota: En algunas competiciones puede variar (ej: 3 cambios en vez de 5).
-     */
+    // Límite máximo de cambios permitidos por partido.
     private static final int MAX_CAMBIOS = 5;
 
+    // ===== CONSTRUCTORES =====
     public Equipos() {
     }
 
@@ -43,10 +37,7 @@ public class Equipos {
         inicializarEquipo();
     }
 
-    /**
-     * Inicializa el equipo con portero y 10 jugadores titulares + 5 suplentes.
-     * Se llama automáticamente en el constructor.
-     */
+    // Inicializa portero, titulares, suplentes y formación por defecto.
     private void inicializarEquipo() {
         // Crear portero
         Portero nuevoPortero = new Portero("Portero del " + nombre);
@@ -74,6 +65,7 @@ public class Equipos {
         asignarPosiciones();
     }
 
+    // ===== GETTERS =====
     public Portero getPortero() {
         return portero;
     }
@@ -81,49 +73,6 @@ public class Equipos {
     public Formacion getFormacion() {
         return formacion;
     }
-
-    /**
-     * Asigna la formación y valida que sea correcta.
-     *
-     * @throws IllegalArgumentException si la suma de defensas+medios+delanteros != 10
-     */
-    public void setFormacion(Formacion formacion) {
-        if (formacion != null && !formacion.isValida()) {
-            throw new IllegalArgumentException("Formación inválida: debe sumar 10 jugadores");
-        }
-        this.formacion = formacion;
-    }
-
-    /**
-     * Agrega un jugador a la lista de titulares.
-     * <p>
-     * IMPORTANTE: Solo permite 10 jugadores titulares (sin contar portero).
-     * Si el equipo ya está lleno, debes usar setReserva() en su lugar.
-     * <p>
-     * Ejemplo de uso:
-     * <pre>
-     * if (!equipo.setJugador(nuevoJugador)) {
-     *     equipo.setReserva(nuevoJugador);  // Va a la banca
-     * }
-     * </pre>
-     *
-     * @return true si se agregó, false si ya hay 10 titulares
-     */
-    public boolean setJugador(Jugador jugador) {
-        if (jugadores.size() >= 10) {
-            return false;
-        }
-        this.jugadores.add(jugador);
-        return true;
-    }
-
-    public int setTarjetasAmarillas() {
-        return tarjetasAmarillas++;
-    }
-    public int setTarjetasRojas() {
-        return tarjetasRojas++;
-    }
-
 
     public Jugador getJugadorRandom() {
         return jugadores.get((int) (Math.random() * jugadores.size()));
@@ -148,32 +97,14 @@ public class Equipos {
         return tarjetasRojas;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public boolean isLocal() {
         return isLocal;
-    }
-
-    public void setLocal(boolean isLocal) {
-        this.isLocal = isLocal;
     }
 
     public int getGoles() {
         return goles;
     }
 
-    public void setGoles(int goles) {
-        this.goles = goles;
-    }
-
-    /**
-     * Devuelve una copia de los jugadores titulares como array.
-     * <p>
-     * NOTA: Es una copia, no la lista original. Si modificas el array
-     * devuelto, NO afecta al equipo. Esto previene bugs accidentales.
-     */
     public Jugador[] getJugadores() {
         return jugadores.toArray(new Jugador[0]);
     }
@@ -182,43 +113,60 @@ public class Equipos {
         return reserva.toArray(new Jugador[0]);
     }
 
-    public void setReserva(Jugador jugador) {
-        this.reserva.add(jugador);
-    }
-
     public boolean isPortero() {
         return portero != null;
     }
 
-    /**
-     * Asigna el portero.
-     * ADVERTENCIA: Si ya existe un portero, lo sobrescribe sin avisar.
-     * Usa isPortero() primero si quieres validar.
-     */
-    public void setPortero(Portero portero) {
-        this.portero = portero;
-    }
-
-    /**
-     * Verifica si el equipo está completo (portero + 10 jugadores).
-     */
     public boolean isFull() {
         return portero != null && jugadores.size() == 10;
     }
 
-    /**
-     * Asigna posiciones según la formación EN ORDEN SECUENCIAL.
-     * <p>
-     * Cómo funciona:
-     * 1. Los primeros N jugadores de la lista → DEFENSA
-     * 2. Los siguientes M jugadores → MEDIOCAMP
-     * 3. Los últimos K jugadores → DELANTERO
-     * <p>
-     * Donde N, M, K vienen de la formación (ej: 4-4-2 → N=4, M=4, K=2)
-     * <p>
-     * IMPORTANTE: Siempre asigna en el mismo orden. Si quieres variedad,
-     * usa asignarPosicionesAleatorias() en su lugar.
-     */
+    // ===== SETTERS =====
+    public void setFormacion(Formacion formacion) {
+        if (formacion != null && !formacion.isValida()) {
+            throw new IllegalArgumentException("Formación inválida: debe sumar 10 jugadores");
+        }
+        this.formacion = formacion;
+    }
+
+    // Agrega un jugador a titulares. Devuelve false si ya hay 10.
+    public boolean setJugador(Jugador jugador) {
+        if (jugadores.size() >= 10) {
+            return false;
+        }
+        this.jugadores.add(jugador);
+        return true;
+    }
+
+    public int setTarjetasAmarillas() {
+        return this.tarjetasAmarillas++;
+    }
+    public int setTarjetasRojas() {
+        return this.tarjetasRojas++;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setLocal(boolean isLocal) {
+        this.isLocal = isLocal;
+    }
+
+    public void setGoles(int goles) {
+        this.goles = goles;
+    }
+
+    public void setReserva(Jugador jugador) {
+        this.reserva.add(jugador);
+    }
+
+    // Asigna el portero (sobrescribe si ya existe).
+    public void setPortero(Portero portero) {
+        this.portero = portero;
+    }
+
+    // ===== METODOS DE EQUIPO =====
     public void asignarPosiciones() {
         if (formacion == null) {
             for (Jugador jugador : jugadores) {
@@ -245,16 +193,6 @@ public class Equipos {
         }
     }
 
-    /**
-     * Versión ALEATORIA de asignarPosiciones().
-     * <p>
-     * Diferencia clave:
-     * - asignarPosiciones() → Siempre el mismo orden (predecible)
-     * - asignarPosicionesAleatorias() → Mezcla jugadores primero (más realista)
-     * <p>
-     * Útil para que en cada simulación, jugadores con diferentes stats
-     * ocupen diferentes posiciones.
-     */
     public void asignarPosicionesAleatorias() {
         if (formacion == null) {
             for (Jugador jugador : jugadores) {
@@ -267,46 +205,7 @@ public class Equipos {
         asignarPosiciones();
     }
 
-    /**
-     * Realiza una sustitución de jugadores durante el partido.
-     * <p>
-     * VALIDACIONES que aplica:
-     * - Máximo 5 cambios por partido (regla FIFA)
-     * - El jugador que sale debe estar en titulares
-     * - El jugador que entra debe estar en reserva
-     * <p>
-     * Cómo funciona:
-     * 1. Verifica que no se hayan alcanzado los MAX_CAMBIOS (5)
-     * 2. Confirma que 'sale' está en la lista de titulares
-     * 3. Confirma que 'entra' está en la lista de reserva
-     * 4. Intercambia sus posiciones: 'sale' va a reserva, 'entra' a titulares
-     * 5. Incrementa el contador de cambios
-     * <p>
-     * IMPORTANTE: Después de un cambio exitoso, es recomendable llamar
-     * asignarPosiciones() si quieres que el jugador entrante tome
-     * la posición correcta según la formación actual.
-     * <p>
-     * NOTA: No valida si un jugador está expulsado (tarjeta roja).
-     * Esa lógica debe implementarse en otra parte (ej: clase Jugador
-     * con un estado isExpulsado).
-     * <p>
-     * Ejemplo de uso:
-     * <pre>
-     * Jugador cansado = equipo.getJugador(5);
-     * Jugador fresco = equipo.getReserva(0);
-     *
-     * if (equipo.cambio(cansado, fresco)) {
-     *     System.out.println("Cambio exitoso");
-     *     equipo.asignarPosiciones();  // Actualizar posiciones
-     * } else {
-     *     System.out.println("Cambio inválido o sin cambios disponibles");
-     * }
-     * </pre>
-     *
-     * @param sale  jugador que sale de la cancha (debe estar en titulares)
-     * @param entra jugador que entra a la cancha (debe estar en reserva)
-     * @return true si el cambio se realizó exitosamente, false si no cumple validaciones
-     */
+    // Realiza un cambio si cumple las validaciones.
     public boolean cambio(Jugador sale, Jugador entra) {
 
         if (cambiosRealizados >= MAX_CAMBIOS) {
@@ -332,35 +231,7 @@ public class Equipos {
         return true;
     }
 
-    /**
-     * Reasigna las posiciones de los jugadores según la formación actual.
-     * <p>
-     * CUÁNDO ES ÚTIL:
-     * - Después de un cambio de jugador (para que el sustituto tome posición)
-     * - Cuando el entrenador cambia de formación táctica (ver setFormacion())
-     * - Para reorganizar posiciones sin modificar la lista de titulares
-     * <p>
-     * Cómo funciona:
-     * 1. Verifica que exista una formación asignada
-     * 2. Llama a asignarPosiciones() para redistribuir roles
-     * <p>
-     * IMPORTANTE: Este metdo NO cambia la formación, solo reasigna posiciones.
-     * Si quieres cambiar de formación (ej: de 4-4-2 a 5-3-2), debes llamar
-     * primero a setFormacion() y LUEGO a cambioPosiciones().
-     * <p>
-     * Ejemplo de uso estratégico:
-     * <pre>
-     * // Escenario: Vas perdiendo 2-0 al minuto 70
-     * equipo.setFormacion(new Formacion(3, 3, 4));  // Formación ofensiva
-     * equipo.cambioPosiciones();                     // Aplica cambios
-     *
-     * // Escenario: Vas ganando 1-0 al minuto 85
-     * equipo.setFormacion(new Formacion(5, 4, 1));  // Formación defensiva
-     * equipo.cambioPosiciones();                     // Aplica cambios
-     * </pre>
-     *
-     * @return true si se reasignaron las posiciones, false si no hay formación definida
-     */
+    // Reasigna posiciones segun la formacion actual.
     public boolean cambioPosiciones() {
 
         if (formacion == null) {
@@ -408,3 +279,4 @@ public class Equipos {
         return sb.toString();
     }
 }
+

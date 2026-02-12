@@ -2,10 +2,6 @@ package org.example.entidades;
 
 import org.example.enums.Posicion;
 
-/**
- * Representa un jugador de fútbol con sus estadísticas.
- * Cada jugador tiene: velocidad, tiro, pase, defensa y físico (valores de 1-100).
- */
 public class Jugador {
 
     private final String nombre;
@@ -47,11 +43,7 @@ public class Jugador {
     }
 
     // ===== SETTERS PROTECTED =====
-    // ¿Por qué protected y no public?
-    // - Permite que Portero (subclase) modifique sus propias stats
-    // - Evita que código externo modifique stats arbitrariamente
-    // - Si necesitas modificar desde fuera, usa setRandomStats() o crea métodos específicos
-
+    // Solo se exponen en subclases.
     protected void setVelocidad(int velocidad) {
         this.velocidad = velocidad;
     }
@@ -137,12 +129,8 @@ public class Jugador {
     public int getTarjetasRojas() {
         return tarjetasRojas;
     }
-    /**
-     * Asigna valores aleatorios (1-100) a todas las estadísticas.
-     *
-     * IMPORTANTE: Portero sobrescribe este metdo para agregar saque y reflejos.
-     * Si creas nuevas subclases con más stats, también deberás sobrescribirlo.
-     */
+
+    // Asigna valores aleatorios (1-100) a todas las estadisticas.
     public void setRandomStats() {
         setVelocidad(1 + (int)(Math.random() * 100));
         setTiro(1 + (int)(Math.random() * 100));
@@ -151,7 +139,6 @@ public class Jugador {
         setFisico(1 + (int)(Math.random() * 100));
     }
 
-    /** Devuelve las estadísticas formateadas para imprimir. */
     public String getStats() {
         String posStr = (posicion != null) ? posicion.toString() : "N/A";
         return String.format("%-25s %5d %5d %5d %5d %5d %10s",

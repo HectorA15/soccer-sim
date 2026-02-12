@@ -13,31 +13,28 @@ import java.util.Random;
 
 public class SimuladorFutbol extends JFrame {
 
-    private JTextArea areaTexto;
-    private JButton botonIniciar;
-    private JComboBox<String> comboLocal, comboVisitante;
+    Equipos equipoLocal, equipoVisitante;
+    JugadoresNombres jugadoresNombres;
+    private final JTextArea areaTexto;
+    private final JButton botonIniciar;
+    private final JComboBox<String> comboLocal;
+    private final JComboBox<String> comboVisitante;
     private Timer timer;
     private int minuto;
     private int golesLocal, golesVisitante;
     private int tarjetasAmarillasLocal, tarjetasAmarillasVisitante;
     private int tarjetasRojasLocal, tarjetasRojasVisitante;
-    private Random random;
+    private final Random random;
 
-    Equipos equipoLocal, equipoVisitante;
-    JugadoresNombres jugadoresNombres;
-
-
+    // ===== CONSTRUCTORES =====
     public SimuladorFutbol() {
         setTitle("Simulador de Fútbol");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Lista de equipos mexicanos
         String[] equipos = EquiposNombres.getEquipos();
 
-
-        // Panel superior para seleccionar los equipos
         JPanel panelEquipos = new JPanel();
         panelEquipos.setLayout(new GridLayout(2, 2));
 
@@ -53,19 +50,16 @@ public class SimuladorFutbol extends JFrame {
 
         add(panelEquipos, BorderLayout.NORTH);
 
-        // Configurar el área de texto para mostrar los eventos
         areaTexto = new JTextArea();
         areaTexto.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(areaTexto);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Botón para iniciar el partido
         botonIniciar = new JButton("Iniciar Partido");
         add(botonIniciar, BorderLayout.SOUTH);
 
         random = new Random();
 
-        // Acción al presionar el botón "Iniciar Partido"
         botonIniciar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -74,18 +68,21 @@ public class SimuladorFutbol extends JFrame {
         });
     }
 
-    // Metdo para iniciar el partido
+    // ===== PUNTO DE ENTRADA =====
+    static void main(String[] args) {
+        SimuladorFutbol simulador = new SimuladorFutbol();
+        simulador.setVisible(true);
+    }
+
+    // ===== METODOS PRIVADOS =====
     private void iniciarPartido() {
-        // Obtener los nombres de los equipos seleccionados
         String strEquipoLocal = (String) comboLocal.getSelectedItem();
         String strEquipoVisitante = (String) comboVisitante.getSelectedItem();
 
-        // Crear las instancias de Equipos
         equipoLocal = new Equipos(strEquipoLocal);
         equipoVisitante = new Equipos(strEquipoVisitante);
 
 
-        // Verificar que los equipos no sean iguales
         if (strEquipoLocal.equals(strEquipoVisitante)) {
             areaTexto.setText("Los equipos local y visitante no pueden ser el mismo.\n");
             return;
@@ -101,12 +98,12 @@ public class SimuladorFutbol extends JFrame {
         golesLocal = 0;
         golesVisitante = 0;
         botonIniciar.setEnabled(false);
-        
+
         // Configurar el temporizador para simular minuto a minuto
         // 1000 ms representa un minuto simulado
         timer = new Timer(1000, e -> {
             String evento = partido.procesarMinuto(minuto, equipoLocal, equipoVisitante);
-            System.out.println(evento); // Imprimir en consola para depuración
+            System.out.println(evento); // Depuracion
             areaTexto.append(evento + "\n");
             minuto++;
 
@@ -134,15 +131,9 @@ public class SimuladorFutbol extends JFrame {
                 } else {
                     areaTexto.append("El partido termina en empate.\n");
                 }
-                botonIniciar.setEnabled(true); // Habilitar el botón para jugar otra vez
+                botonIniciar.setEnabled(true);
             }
         });
-        timer.start(); // Iniciar el temporizador para simular el partido
-    }
-
-    public static void main(String[] args) {
-        // Crear la ventana del simulador
-        SimuladorFutbol simulador = new SimuladorFutbol();
-        simulador.setVisible(true);
+        timer.start();
     }
 }
