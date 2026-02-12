@@ -8,8 +8,13 @@ import org.example.nombres.JugadoresNombres;
 
 import java.util.*;
 
+/**
+ * Representa un partido de fútbol entre dos equipos.
+ * Gestiona la simulación minuto a minuto del partido, procesando eventos aleatorios
+ * basados en probabilidades: goles, tarjetas, lesiones, cambios y otros eventos.
+ */
 public class Partido {
-    // ===== PROBABILIDADES =====
+    // ===== PROBABILIDADES DE EVENTOS =====
     private static final double SAQUE_DE_BANDA = 12;
     private static final double PROB_TIRO_LIBRE = 10;
     private static final double PROB_TIRO_EQUINA = 5;
@@ -23,99 +28,86 @@ public class Partido {
     private final Equipos equipoLocal;
     private final Equipos equipoVisitante;
     private final Eventos evento;
-    private final int duracionPartido;
-    private final int minuto;
-    Timer timer;
     Random random = new Random();
 
-
     // ===== CONSTRUCTORES =====
+
+    /**
+     * Constructor del partido.
+     * Inicializa el partido con dos equipos, crea el gestor de eventos y establece la duración.
+     * @param local Equipo local
+     * @param visitante Equipo visitante
+     */
     public Partido(Equipos local, Equipos visitante) {
         this.equipoLocal = local;
         this.equipoVisitante = visitante;
         this.evento = new Eventos();
-        this.minuto = 0;
-
-        this.duracionPartido = 90;
-        this.timer = new Timer();
     }
 
     // ===== GETTERS =====
+
+    /**
+     * Obtiene el equipo local del partido.
+     * @return Equipo local
+     */
     public Equipos getEquipoLocal() {
         return equipoLocal;
     }
 
+    /**
+     * Obtiene el equipo visitante del partido.
+     * @return Equipo visitante
+     */
     public Equipos getEquipoVisitante() {
         return equipoVisitante;
     }
 
-    // ===== METODOS PUBLICOS =====
-    public Partido crearPartido() {
-        String[] nombresJugadores = JugadoresNombres.getJugadores();
+    // ===== MÉTODOS PÚBLICOS =====
 
-        Equipos equipoLocal = getEquipoLocal();
-        equipoLocal.setLocal(true);
-
-        Equipos equipoVisitante = getEquipoVisitante();
-        equipoVisitante.setLocal(false);
-
-        List<String> nombresList = Arrays.asList(nombresJugadores);
-        Collections.shuffle(nombresList);
-
-        int mitad = nombresList.size() / 2;
-
-        for (int i = 0; i < mitad; i++) {
-            agregarJugador(equipoLocal, nombresList.get(i));
-        }
-
-        for (int i = mitad; i < nombresList.size(); i++) {
-            agregarJugador(equipoVisitante, nombresList.get(i));
-        }
-
-        Formacion formacionLocal = new Formacion(4, 4, 2);
-        Formacion formacionVisitante = new Formacion(4, 4, 2);
-        equipoLocal.setFormacion(formacionLocal);
-        equipoVisitante.setFormacion(formacionVisitante);
-
-        equipoLocal.asignarPosiciones();
-        equipoVisitante.asignarPosiciones();
-
-        return new Partido(equipoLocal, equipoVisitante);
-    }
-
+    /**
+     * Procesa un minuto del partido, generando eventos aleatorios.
+     * Selecciona aleatoriamente el equipo afectado, jugadores involucrados y tipo de evento.
+     * Gestiona: goles, penales, tiros libres, esquinas, saques, tarjetas, expulsiones,
+     * lesiones con cambios automáticos y fueras de juego.
+     * @param minutoActual Minuto actual del partido (0-89)
+     * @param equipoLocal Equipo local
+     * @param equipoVisitante Equipo visitante
+     * @return String describiendo el evento ocurrido en este minuto
+     */
     public String procesarMinuto(int minutoActual, Equipos equipoLocal, Equipos equipoVisitante) {
         int numGenerado = random.nextInt(100);
         double prob = 0;
-        String mensaje;
         Jugador jugadorAfectado;
         Jugador jugadorDefensor;
         Equipos equipoAfectado;
         Portero porteroDefensor;
 
-        // ==== SE ASIGNA ALEATORIAMENTE A QUIEN SE LE DA EL EVENTO ====
+        // Asignar aleatoriamente el equipo que protagoniza el evento
         if (random.nextBoolean()) {
             equipoAfectado = equipoLocal;
-
             jugadorAfectado = equipoLocal.getJugadorRandom();
             jugadorDefensor = equipoVisitante.getJugadorRandom();
-
             porteroDefensor = equipoVisitante.getPortero();
         } else {
             equipoAfectado = equipoVisitante;
-
             jugadorAfectado = equipoVisitante.getJugadorRandom();
             jugadorDefensor = equipoLocal.getJugadorRandom();
-
             porteroDefensor = equipoLocal.getPortero();
         }
 
-        // ==== SE RECIBEN LOS DATOS DEL JUGADOR QUE SE PUEDAN LLEGAR A MODIFICAR ====
+        // Validar que haya jugadores disponibles
+        if (jugadorAfectado == null || jugadorDefensor == null) {
+            return "minuto " + minutoActual + "\t: No hay jugadores disponibles";
+        }
+
         int goles = equipoAfectado.getGoles();
         int tarjetasAmarillas = jugadorAfectado.getTarjetasAmarillas();
         int tarjetasRojas = jugadorAfectado.getTarjetasRojas();
         int lesiones = jugadorAfectado.getLesiones();
 
-        // ======================== SE PROCESAN LOS EVENTOS ==========================
+        // ======================== PROCESAMIENTO DE EVENTOS ==========================
+
+        // TIRO A PUERTA
         if (numGenerado < (prob += PROB_TIRO_A_PUERTA)) {
             if (evento.tiroPuerta(jugadorAfectado, porteroDefensor)) {
                 goles++;
@@ -126,21 +118,23 @@ public class Partido {
             } else {
                 return "minuto " + minutoActual + "\t: " +
                         jugadorAfectado.getNombre() +
-                        " dispara, pero " + porteroDefensor.getNombre() + " ataja el balón";
+                        " dispara, pero " + porteroDefensor.getNombre() + " ataja el balon";
             }
 
+            // PENAL
         } else if (numGenerado < (prob += PROB_PENAL)) {
             if (evento.penal(jugadorAfectado, porteroDefensor)) {
                 goles++;
                 equipoAfectado.setGoles(goles);
                 return "minuto " + minutoActual + "\t: " +
                         "GOOOOOOOOL!!!! DE " +
-                        jugadorAfectado.getNombre() + "PARA LAS " + equipoAfectado.getNombre();
+                        jugadorAfectado.getNombre() + " PARA " + equipoAfectado.getNombre();
             } else {
                 return "minuto " + minutoActual + "\t: " +
-                        "LO PARO LO PARO SEÑORES LO PARO!!!! " + porteroDefensor.getNombre() + " ATAJO INCREIBLEMENTE";
+                        "LO PARO LO PARO SENORES LO PARO!!!! " + porteroDefensor.getNombre() + " ATAJO INCREIBLEMENTE";
             }
 
+            // TIRO LIBRE
         } else if (numGenerado < (prob += PROB_TIRO_LIBRE)) {
             if (evento.tiroLibre(jugadorAfectado, porteroDefensor)) {
                 goles++;
@@ -152,6 +146,7 @@ public class Partido {
                         + "NOOOOO QUE LERDOOOO " + jugadorAfectado.getNombre() + " FALLO TERRIBLEMENTE";
             }
 
+            // TIRO DE ESQUINA
         } else if (numGenerado < (prob += PROB_TIRO_EQUINA)) {
             if (evento.tiroEsquina(jugadorAfectado, jugadorDefensor, porteroDefensor)) {
                 goles++;
@@ -163,6 +158,7 @@ public class Partido {
                         " QUE DEFENSAAA DIOS MIO";
             }
 
+            // SAQUE DE BANDA
         } else if (numGenerado < (prob += SAQUE_DE_BANDA)) {
             if (evento.saqueBanda(jugadorAfectado, jugadorDefensor)) {
                 return "minuto " + minutoActual + "\t: " + jugadorAfectado.getNombre() + " saque exitoso...";
@@ -170,51 +166,56 @@ public class Partido {
                 return "minuto " + minutoActual + "\t: " + jugadorDefensor.getNombre() + " recibe el saque...";
             }
 
+            // TARJETA AMARILLA
         } else if (numGenerado < (prob += PROB_TARJETA_AMARILLA)) {
-        String resultado = evento.tarjetaAmarilla(jugadorAfectado);
+            String resultado = evento.tarjetaAmarilla(jugadorAfectado);
 
-        if (resultado != null) {
-            if (resultado.equals("EXPULSION")) {
-                return "minuto " + minutoActual + "\t: " +
-                        "EXPULSION! " + jugadorAfectado.getNombre() +
-                        " recibe la segunda amarilla y es expulsado! " +
-                        equipoAfectado.getNombre() + " se queda con " +
-                        equipoAfectado.contarJugadoresDisponibles() + " jugadores";
+            if (resultado != null) {
+                if (resultado.equals("EXPULSION")) {
+                    return "minuto " + minutoActual + "\t: " +
+                            "EXPULSION! " + jugadorAfectado.getNombre() +
+                            " recibe la segunda amarilla y es expulsado! " +
+                            equipoAfectado.getNombre() + " se queda con " +
+                            equipoAfectado.contarJugadoresDisponibles() + " jugadores";
+                } else {
+                    return "minuto " + minutoActual + "\t: " +
+                            "Tarjeta Amarilla para " + jugadorAfectado.getNombre();
+                }
             } else {
-                return "minuto " + minutoActual + "\t: " +
-                        "Tarjeta Amarilla para " + jugadorAfectado.getNombre();
+                return "minuto " + minutoActual + "\t: " + "";
             }
-        } else {
-            return "minuto " + minutoActual + "\t: " + "";
-        }
 
-    } else if (numGenerado < (prob += PROB_TARJETA_ROJA)) {
-        if (evento.tarjetaRoja(jugadorAfectado)) {
-            return "minuto " + minutoActual + "\t: " +
-                    "TARJETA ROJA DIRECTA! " + jugadorAfectado.getNombre() +
-                    " es expulsado! " + equipoAfectado.getNombre() +
-                    " se queda con " + equipoAfectado.contarJugadoresDisponibles() + " jugadores";
-        } else {
-            return "minuto " + minutoActual + "\t: " + "";
-        }
+            // TARJETA ROJA
+        } else if (numGenerado < (prob += PROB_TARJETA_ROJA)) {
+            if (evento.tarjetaRoja(jugadorAfectado)) {
+                return "minuto " + minutoActual + "\t: " +
+                        "TARJETA ROJA DIRECTA! " + jugadorAfectado.getNombre() +
+                        " es expulsado! " + equipoAfectado.getNombre() +
+                        " se queda con " + equipoAfectado.contarJugadoresDisponibles() + " jugadores";
+            } else {
+                return "minuto " + minutoActual + "\t: " + "";
+            }
 
+            // FUERA DE JUEGO
         } else if (numGenerado < (prob += FUERA_DE_JUEGO)) {
             if (evento.fueraDeJuego(jugadorAfectado, jugadorDefensor)) {
-                return minutoActual + ": " + jugadorAfectado.getNombre() + " estaba en una posicion adelantada, Se anula la jugada!";
+                return "minuto " + minutoActual + "\t: " + jugadorAfectado.getNombre() +
+                        " estaba en una posicion adelantada, Se anula la jugada!";
             } else {
-                return "minuto " + minutoActual + "\t: ";
+                return "minuto " + minutoActual + "\t: " + "";
             }
 
+            // LESION (con cambio automático)
         } else if (numGenerado < (prob += LESION)) {
             if (evento.lesion(jugadorAfectado)) {
                 lesiones++;
                 jugadorAfectado.setLesiones(lesiones);
 
-                // Intentar cambio automático si hay suplentes disponibles
+                // Intentar cambio automático
                 Jugador[] suplentes = equipoAfectado.getReserva();
 
                 if (suplentes.length > 0 && equipoAfectado.getCambiosRealizados() < 5) {
-                    // Buscar el primer suplente disponible (no lesionado ni expulsado)
+                    // Buscar primer suplente disponible
                     Jugador suplente = null;
                     for (Jugador sup : suplentes) {
                         if (sup.getLesiones() == 0 && !sup.isExpulsado()) {
@@ -242,28 +243,11 @@ public class Partido {
                     }
                 }
             } else {
-                return "minuto " + minutoActual + "\t: ";
+                return "minuto " + minutoActual + "\t: " + "";
             }
-
-        }
-
-        return "minuto " + minutoActual + "\t: ";
-    }
-
-    // ===== HELPERS PRIVADOS =====
-    private void agregarJugador(Equipos equipo, String nombre) {
-        if (!equipo.isPortero()) {
-            Portero porteroTemp = new Portero(nombre);
-            porteroTemp.setRandomStats();
-            equipo.setPortero(porteroTemp);
-
         } else {
-            Jugador jugadorTemp = new Jugador(nombre);
-            jugadorTemp.setRandomStats();
-
-            if (!equipo.setJugador(jugadorTemp)) {
-                equipo.setReserva(jugadorTemp);
-            }
+            return "minuto " + minutoActual + "\t: " + "";
         }
     }
+
 }

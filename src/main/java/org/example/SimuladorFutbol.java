@@ -2,8 +2,8 @@ package org.example;
 
 import org.example.core.Partido;
 import org.example.entidades.Equipos;
+import org.example.entidades.Formacion;
 import org.example.nombres.EquiposNombres;
-import org.example.nombres.JugadoresNombres;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,14 +11,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
+/**
+ * Ventana principal del simulador de futbol.
+ * Permite seleccionar equipos, formaciones e iniciar la simulacion del partido.
+ */
 public class SimuladorFutbol extends JFrame {
 
     Equipos equipoLocal, equipoVisitante;
-    JugadoresNombres jugadoresNombres;
+    private InfoJugadores ventanaEquipos = null;
     private final JTextArea areaTexto;
     private final JButton botonIniciar;
     private final JComboBox<String> comboLocal;
     private final JComboBox<String> comboVisitante;
+    private final JComboBox<String> comboFormacionLocal;
+    private final JComboBox<String> comboFormacionVisitante;
     private Timer timer;
     private int minuto;
     private int golesLocal, golesVisitante;
@@ -26,44 +32,54 @@ public class SimuladorFutbol extends JFrame {
     private int tarjetasRojasLocal, tarjetasRojasVisitante;
     private final Random random;
 
-    private InfoJugadores ventanaEquipos = null;
-
-    // ===== CONSTRUCTORES =====
     public SimuladorFutbol() {
-        setTitle("Simulador de Fútbol");
-        setSize(500, 400);
+        setTitle("Simulador de Futbol");
+        setSize(600, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         String[] equipos = EquiposNombres.getEquipos();
+        String[] formaciones = {"4-4-2", "4-3-3", "3-5-2", "5-3-2", "3-4-3", "4-5-1"};
 
-        // ===== PANEL SUPERIOR: Selección de equipos =====
+        // Panel superior con seleccion de equipos y formaciones
         JPanel panelEquipos = new JPanel();
-        panelEquipos.setLayout(new GridLayout(2, 2));
+        panelEquipos.setLayout(new GridLayout(4, 2, 5, 5));
+        panelEquipos.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel labelLocal = new JLabel("Equipo Local:");
         comboLocal = new JComboBox<>(equipos);
+
+        JLabel labelFormacionLocal = new JLabel("Formacion Local:");
+        comboFormacionLocal = new JComboBox<>(formaciones);
+
         JLabel labelVisitante = new JLabel("Equipo Visitante:");
         comboVisitante = new JComboBox<>(equipos);
+        comboVisitante.setSelectedIndex(1); // Seleccionar un equipo diferente por defecto
+
+        JLabel labelFormacionVisitante = new JLabel("Formacion Visitante:");
+        comboFormacionVisitante = new JComboBox<>(formaciones);
 
         panelEquipos.add(labelLocal);
         panelEquipos.add(comboLocal);
+        panelEquipos.add(labelFormacionLocal);
+        panelEquipos.add(comboFormacionLocal);
         panelEquipos.add(labelVisitante);
         panelEquipos.add(comboVisitante);
+        panelEquipos.add(labelFormacionVisitante);
+        panelEquipos.add(comboFormacionVisitante);
 
         add(panelEquipos, BorderLayout.NORTH);
 
-        // ===== CENTRO: Área de texto para eventos =====
+        // Area de texto para eventos
         areaTexto = new JTextArea();
         areaTexto.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(areaTexto);
         add(scrollPane, BorderLayout.CENTER);
 
-        // ===== PANEL INFERIOR: Botones =====
+        // Panel de botones
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout());
 
-        // Botón "Iniciar Partido"
         botonIniciar = new JButton("Iniciar Partido");
         botonIniciar.addActionListener(new ActionListener() {
             @Override
@@ -73,26 +89,22 @@ public class SimuladorFutbol extends JFrame {
         });
         panelBotones.add(botonIniciar);
 
-        // Botón "Ver Equipos"
         JButton btnVerEquipos = new JButton("Ver Equipos");
         btnVerEquipos.addActionListener(e -> {
             if (equipoLocal != null && equipoVisitante != null) {
 
-                // 🆕 Verificar si ya existe y está visible
                 if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
-                    ventanaEquipos.toFront(); // Traer al frente
-                    ventanaEquipos.requestFocus(); // Dar foco
-                    return; // Salir sin crear nueva ventana
+                    ventanaEquipos.toFront();
+                    ventanaEquipos.requestFocus();
+                    return;
                 }
 
-                // Crear nueva ventana solo si no existe
                 ventanaEquipos = new InfoJugadores(
                         equipoLocal,
                         equipoVisitante,
                         SimuladorFutbol.this
                 );
 
-                // Posicionar a la derecha
                 Point ubicacion = SimuladorFutbol.this.getLocation();
                 int anchoVentanaPrincipal = SimuladorFutbol.this.getWidth();
                 ventanaEquipos.setLocation(
@@ -100,18 +112,16 @@ public class SimuladorFutbol extends JFrame {
                         ubicacion.y
                 );
 
-                // 🆕 Listener para limpiar la referencia cuando se cierre
                 ventanaEquipos.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosed(java.awt.event.WindowEvent e) {
-                        ventanaEquipos = null; // Limpiar referencia
+                        ventanaEquipos = null;
                     }
                 });
 
                 ventanaEquipos.setVisible(true);
 
             } else {
-                JDialog.setDefaultLookAndFeelDecorated(true);
                 JOptionPane.showMessageDialog(
                         SimuladorFutbol.this,
                         "Primero debes iniciar un partido para ver los equipos",
@@ -127,42 +137,60 @@ public class SimuladorFutbol extends JFrame {
         random = new Random();
     }
 
-    // ===== PUNTO DE ENTRADA =====
-    static void main(String[] args) {
+    public static void main(String[] args) {
         SimuladorFutbol simulador = new SimuladorFutbol();
         simulador.setVisible(true);
     }
 
-    // ===== METODOS PRIVADOS =====
+    /**
+     * Inicializa y comienza la simulacion del partido.
+     * Crea los equipos, asigna formaciones y configura el timer para simular minuto a minuto.
+     */
     private void iniciarPartido() {
         String strEquipoLocal = (String) comboLocal.getSelectedItem();
         String strEquipoVisitante = (String) comboVisitante.getSelectedItem();
-
-        equipoLocal = new Equipos(strEquipoLocal);
-        equipoVisitante = new Equipos(strEquipoVisitante);
 
         if (strEquipoLocal.equals(strEquipoVisitante)) {
             areaTexto.setText("Los equipos local y visitante no pueden ser el mismo.\n");
             return;
         }
 
-        Partido partido = new Partido(equipoLocal, equipoVisitante);
-        equipoLocal = partido.getEquipoLocal();
-        equipoVisitante = partido.getEquipoVisitante();
+        // Crear equipos
+        equipoLocal = new Equipos(strEquipoLocal);
+        equipoVisitante = new Equipos(strEquipoVisitante);
 
-        areaTexto.setText("Inicia el partido entre " + equipoLocal.getNombre() + " y " + equipoVisitante.getNombre() + "...\n");
+        // Obtener formaciones seleccionadas
+        String formacionLocalStr = (String) comboFormacionLocal.getSelectedItem();
+        String formacionVisitanteStr = (String) comboFormacionVisitante.getSelectedItem();
+
+        // Parsear formaciones (formato "4-4-2")
+        Formacion formacionLocal = parsearFormacion(formacionLocalStr);
+        Formacion formacionVisitante = parsearFormacion(formacionVisitanteStr);
+
+        // Asignar formaciones
+        equipoLocal.setFormacion(formacionLocal);
+        equipoVisitante.setFormacion(formacionVisitante);
+
+        equipoLocal.asignarPosiciones();
+        equipoVisitante.asignarPosiciones();
+
+        // Crear partido
+        Partido partido = new Partido(equipoLocal, equipoVisitante);
+
+        areaTexto.setText("Inicia el partido entre " + equipoLocal.getNombre() +
+                " (" + formacionLocalStr + ") y " + equipoVisitante.getNombre() +
+                " (" + formacionVisitanteStr + ")...\n");
         minuto = 0;
         golesLocal = 0;
         golesVisitante = 0;
         botonIniciar.setEnabled(false);
 
-        // Configurar el temporizador
+        // Timer para simular minuto a minuto
         timer = new Timer(1000, e -> {
             String evento = partido.procesarMinuto(minuto, equipoLocal, equipoVisitante);
             System.out.println(evento);
             areaTexto.append(evento + "\n");
 
-            // 🆕 Actualizar ventana de equipos si está abierta
             if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
                 ventanaEquipos.actualizarTablas();
             }
@@ -171,7 +199,7 @@ public class SimuladorFutbol extends JFrame {
 
             if (minuto == 90) {
                 timer.stop();
-                areaTexto.append("\n¡Final del partido!\n");
+                areaTexto.append("\nFinal del partido!\n");
 
                 String nombreLocal = equipoLocal.getNombre();
                 String nombreVisitante = equipoVisitante.getNombre();
@@ -182,19 +210,21 @@ public class SimuladorFutbol extends JFrame {
                 tarjetasRojasLocal = equipoLocal.getTarjetasRojas();
                 tarjetasRojasVisitante = equipoVisitante.getTarjetasRojas();
 
-                areaTexto.append("Resultado Final: " + nombreLocal + " " + golesLocal + " - " + golesVisitante + " " + nombreVisitante + "\n");
-                areaTexto.append("Tarjetas amarillas - " + nombreLocal + ": " + tarjetasAmarillasLocal + ", " + nombreVisitante + ": " + tarjetasAmarillasVisitante + "\n");
-                areaTexto.append("Tarjetas rojas - " + nombreLocal + ": " + tarjetasRojasLocal + ", " + nombreVisitante + ": " + tarjetasRojasVisitante + "\n");
+                areaTexto.append("Resultado Final: " + nombreLocal + " " + golesLocal +
+                        " - " + golesVisitante + " " + nombreVisitante + "\n");
+                areaTexto.append("Tarjetas amarillas - " + nombreLocal + ": " + tarjetasAmarillasLocal +
+                        ", " + nombreVisitante + ": " + tarjetasAmarillasVisitante + "\n");
+                areaTexto.append("Tarjetas rojas - " + nombreLocal + ": " + tarjetasRojasLocal +
+                        ", " + nombreVisitante + ": " + tarjetasRojasVisitante + "\n");
 
                 if (golesLocal > golesVisitante) {
-                    areaTexto.append("¡" + nombreLocal + " gana el partido!\n");
+                    areaTexto.append(nombreLocal + " gana el partido!\n");
                 } else if (golesLocal < golesVisitante) {
-                    areaTexto.append("¡" + nombreVisitante + " gana el partido!\n");
+                    areaTexto.append(nombreVisitante + " gana el partido!\n");
                 } else {
                     areaTexto.append("El partido termina en empate.\n");
                 }
 
-                // 🆕 Actualización final
                 if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
                     ventanaEquipos.actualizarTablas();
                 }
@@ -203,5 +233,18 @@ public class SimuladorFutbol extends JFrame {
             }
         });
         timer.start();
+    }
+
+    /**
+     * Convierte un string de formacion (ej: "4-4-2") en un objeto Formacion.
+     * @param formacionStr String con formato "D-M-A" (defensas-mediocampistas-delanteros)
+     * @return Objeto Formacion correspondiente
+     */
+    private Formacion parsearFormacion(String formacionStr) {
+        String[] partes = formacionStr.split("-");
+        int defensas = Integer.parseInt(partes[0]);
+        int mediocampistas = Integer.parseInt(partes[1]);
+        int delanteros = Integer.parseInt(partes[2]);
+        return new Formacion(defensas, mediocampistas, delanteros);
     }
 }
