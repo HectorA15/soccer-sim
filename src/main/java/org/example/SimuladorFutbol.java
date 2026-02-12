@@ -17,20 +17,20 @@ import java.util.Random;
  */
 public class SimuladorFutbol extends JFrame {
 
-    Equipos equipoLocal, equipoVisitante;
-    private InfoJugadores ventanaEquipos = null;
     private final JTextArea areaTexto;
     private final JButton botonIniciar;
     private final JComboBox<String> comboLocal;
     private final JComboBox<String> comboVisitante;
     private final JComboBox<String> comboFormacionLocal;
     private final JComboBox<String> comboFormacionVisitante;
+    private final Random random;
+    Equipos equipoLocal, equipoVisitante;
+    private InfoJugadores ventanaEquipos = null;
     private Timer timer;
     private int minuto;
     private int golesLocal, golesVisitante;
     private int tarjetasAmarillasLocal, tarjetasAmarillasVisitante;
     private int tarjetasRojasLocal, tarjetasRojasVisitante;
-    private final Random random;
 
     public SimuladorFutbol() {
         setTitle("Simulador de Futbol");
@@ -101,11 +101,7 @@ public class SimuladorFutbol extends JFrame {
                     return;
                 }
 
-                ventanaEquipos = new InfoJugadores(
-                        equipoLocal,
-                        equipoVisitante,
-                        SimuladorFutbol.this
-                );
+                ventanaEquipos = new InfoJugadores( equipoLocal, equipoVisitante );
 
                 Point ubicacion = SimuladorFutbol.this.getLocation();
                 int anchoVentanaPrincipal = SimuladorFutbol.this.getWidth();
@@ -239,6 +235,7 @@ public class SimuladorFutbol extends JFrame {
 
     /**
      * Convierte un string de formacion (ej: "4-4-2") en un objeto Formacion.
+     *
      * @param formacionStr String con formato "D-M-A" (defensas-mediocampistas-delanteros)
      * @return Objeto Formacion correspondiente
      */

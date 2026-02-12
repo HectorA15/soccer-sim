@@ -16,7 +16,7 @@ public class InfoJugadores extends JFrame {
     private JTable tablaSuplentesLocal;
     private JTable tablaSuplentesVisitante;
 
-    public InfoJugadores(Equipos local, Equipos visitante, JFrame padre) {
+    public InfoJugadores(Equipos local, Equipos visitante) {
         this.equipoLocal = local;
         this.equipoVisitante = visitante;
 
