@@ -1,6 +1,7 @@
 package org.example.entidades;
 
 import org.example.enums.Posicion;
+import org.example.nombres.JugadoresNombres;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,8 @@ public class Equipos {
     private Portero portero;
     private boolean isLocal;
     private String nombre;
+    private int tarjetasAmarillas;
+    private int tarjetasRojas;
     private Formacion formacion;
     private final List<Jugador> jugadores = new ArrayList<>(10);
     private final List<Jugador> reserva = new ArrayList<>();
@@ -33,6 +36,42 @@ public class Equipos {
     private static final int MAX_CAMBIOS = 5;
 
     public Equipos() {
+    }
+
+    public Equipos(String nombre) {
+        this.nombre = nombre;
+        inicializarEquipo();
+    }
+
+    /**
+     * Inicializa el equipo con portero y 10 jugadores titulares + 5 suplentes.
+     * Se llama automáticamente en el constructor.
+     */
+    private void inicializarEquipo() {
+        // Crear portero
+        Portero nuevoPortero = new Portero("Portero del " + nombre);
+        nuevoPortero.setRandomStats();
+        this.portero = nuevoPortero;
+
+        // Crear 10 jugadores titulares
+        for (int i = 0; i < 10; i++) {
+            String nombreJugador = JugadoresNombres.getNombreAleatorio();
+            Jugador jugador = new Jugador(nombreJugador);
+            jugador.setRandomStats();
+            this.jugadores.add(jugador);
+        }
+
+        // Crear 5 jugadores en la banca (suplentes)
+        for (int i = 0; i < 5; i++) {
+            String nombreJugador = JugadoresNombres.getNombreAleatorio();
+            Jugador jugador = new Jugador(nombreJugador);
+            jugador.setRandomStats();
+            this.reserva.add(jugador);
+        }
+
+        // Establecer formación por defecto
+        this.formacion = new Formacion(4, 4, 2);
+        asignarPosiciones();
     }
 
     public Portero getPortero() {
@@ -78,6 +117,14 @@ public class Equipos {
         return true;
     }
 
+    public int setTarjetasAmarillas() {
+        return tarjetasAmarillas++;
+    }
+    public int setTarjetasRojas() {
+        return tarjetasRojas++;
+    }
+
+
     public Jugador getJugadorRandom() {
         return jugadores.get((int) (Math.random() * jugadores.size()));
     }
@@ -92,6 +139,13 @@ public class Equipos {
 
     public String getNombre() {
         return nombre;
+    }
+
+    public int getTarjetasAmarillas() {
+        return tarjetasAmarillas;
+    }
+    public int getTarjetasRojas() {
+        return tarjetasRojas;
     }
 
     public void setNombre(String nombre) {

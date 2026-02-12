@@ -1,12 +1,13 @@
 package org.example.core;
 
 import org.example.entidades.Equipos;
+import org.example.entidades.Formacion;
 import org.example.entidades.Jugador;
 import org.example.entidades.Portero;
+import org.example.nombres.JugadoresNombres;
 
-import java.util.Random;
+import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class Partido {
     // ============== % PROBABILIDADES FIJAS ===============
@@ -20,17 +21,18 @@ public class Partido {
     private static final double PROB_PENAL = 1;
     private static final double PROB_TARJETA_ROJA = 1;
 
-    private final Equipos local;
-    private final Equipos visitante;
+    private final Equipos equipoLocal;
+    private final Equipos equipoVisitante;
     private final Eventos evento;
+    private final int duracionPartido;
     Timer timer;
     Random random = new Random();
-    private int minuto;
-    private final int duracionPartido;
+    private final int minuto;
+
 
     public Partido(Equipos local, Equipos visitante) {
-        this.local = local;
-        this.visitante = visitante;
+        this.equipoLocal = local;
+        this.equipoVisitante = visitante;
         this.evento = new Eventos();
         this.minuto = 0;
 
@@ -38,38 +40,89 @@ public class Partido {
         this.timer = new Timer();
     }
 
-    public void simular() {
-        minuto = 0;
+    public Equipos getEquipoLocal() {
+        return equipoLocal;
+    }
 
-        timer = new Timer();
+    public Equipos getEquipoVisitante() {
+        return equipoVisitante;
+    }
 
-        TimerTask tareaCadaSegundo = new TimerTask() {
-            @Override
-            public void run() {
-                minuto++;
+    public Partido crearPartido() {
+        String[] nombresJugadores = JugadoresNombres.getJugadores();
 
-                String textoMinuto = procesarMinuto(minuto, local, visitante);
-                System.out.println(textoMinuto);
+        // Crear equipos vacíos
+        Equipos equipoLocal = getEquipoLocal();
+        equipoLocal.setLocal(true);
 
-                if (minuto >= duracionPartido) {
-                    timer.cancel();
-                    timer.purge();
+        Equipos equipoVisitante = getEquipoVisitante();
+        equipoVisitante.setLocal(false);
 
-                    System.out.println("Final del partido: " +
-                            local.getNombre() + " " + local.getGoles() +
-                            " - " + visitante.getGoles() + " " + visitante.getNombre());
-                }
-            }
-        };
+        // ===== PASO 1: MEZCLAR NOMBRES ALEATORIAMENTE =====
+        // Convertimos el array a List porque Collections.shuffle() solo funciona con listas
+        List<String> nombresList = Arrays.asList(nombresJugadores);
+        Collections.shuffle(nombresList);  // Orden aleatorio cada vez que se ejecuta
 
-        timer.scheduleAtFixedRate(tareaCadaSegundo, 0, 1000);
+        // ===== PASO 2: DIVIDIR EN DOS MITADES =====
+        int mitad = nombresList.size() / 2;  // Con 30 jugadores: mitad = 15
+
+        // ===== PASO 3: ASIGNAR PRIMERA MITAD AL EQUIPO LOCAL =====
+        // Índices 0-14 (15 jugadores)
+        for (int i = 0; i < mitad; i++) {
+            agregarJugador(equipoLocal, nombresList.get(i));
+        }
+
+        // ===== PASO 4: ASIGNAR SEGUNDA MITAD AL EQUIPO VISITANTE =====
+        // Índices 15-29 (15 jugadores)
+        for (int i = mitad; i < nombresList.size(); i++) {
+            agregarJugador(equipoVisitante, nombresList.get(i));
+        }
+
+        // ===== PASO 5: CONFIGURAR FORMACIONES =====
+        // Ambos equipos usan 4-4-2 (4 defensas, 4 mediocampistas, 2 delanteros)
+        Formacion formacionLocal = new Formacion(4, 4, 2);
+        Formacion formacionVisitante = new Formacion(4, 4, 2);
+        equipoLocal.setFormacion(formacionLocal);
+        equipoVisitante.setFormacion(formacionVisitante);
+
+        // ===== PASO 6: ASIGNAR POSICIONES SEGÚN FORMACIÓN =====
+        // Esto asigna DEFENSA/MEDIOCAMP/DELANTERO a cada jugador titular
+        // basándose en la formación configurada
+        equipoLocal.asignarPosiciones();
+        equipoVisitante.asignarPosiciones();
+
+        // ===== PASO 8: CREAR PARTIDO =====
+        Partido partido = new Partido(equipoLocal, equipoVisitante);
+        return partido;
     }
 
 
-    private String procesarMinuto(int minutoActual, Equipos equipoLocal, Equipos equipoVisitante) {
+
+    private void agregarJugador(Equipos equipo, String nombre) {
+        if (!equipo.isPortero()) {
+            // Este equipo aún no tiene portero, crear uno
+            Portero porteroTemp = new Portero(nombre);
+            porteroTemp.setRandomStats();  // Stats aleatorias (incluyendo saque y reflejos)
+            equipo.setPortero(porteroTemp);
+
+        } else {
+            // Ya hay portero, crear jugador de campo
+            Jugador jugadorTemp = new Jugador(nombre);
+            jugadorTemp.setRandomStats();  // Stats aleatorias (5 básicas)
+
+            // Intentar agregar como titular
+            if (!equipo.setJugador(jugadorTemp)) {
+                // No se pudo agregar (ya hay 10 titulares), va a reserva
+                equipo.setReserva(jugadorTemp);
+            }
+        }
+    }
+
+
+    public String procesarMinuto(int minutoActual, Equipos equipoLocal, Equipos equipoVisitante) {
         int numGenerado = random.nextInt(100);
         double prob = 0;
-
+        String mensaje;
         // ===== CREACION DE EQUIPOS Y JUGADORES INVOLUCRADOS =====
         Jugador jugadorAfectado;
         Jugador jugadorDefensor;

@@ -1,9 +1,11 @@
 package org.example.nombres;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public final class JugadoresNombres {
 
+    private static final Random random = new Random();
 
     public JugadoresNombres(){
 
@@ -22,6 +24,11 @@ public final class JugadoresNombres {
         return Arrays.copyOf(JUGADORES, JUGADORES.length);
     }
 
-
+    /**
+     * Retorna un nombre de jugador aleatorio del listado.
+     */
+    public static String getNombreAleatorio() {
+        return JUGADORES[random.nextInt(JUGADORES.length)];
+    }
 
 }
