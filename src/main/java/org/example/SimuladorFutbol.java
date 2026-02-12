@@ -90,7 +90,9 @@ public class SimuladorFutbol extends JFrame {
         panelBotones.add(botonIniciar);
 
         JButton btnVerEquipos = new JButton("Ver Equipos");
+
         btnVerEquipos.addActionListener(e -> {
+            JDialog.setDefaultLookAndFeelDecorated(true);
             if (equipoLocal != null && equipoVisitante != null) {
 
                 if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
