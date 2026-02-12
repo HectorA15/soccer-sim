@@ -16,22 +16,23 @@ public class Jugador {
     private int lesiones;
     private int tarjetasAmarillas;
     private int tarjetasRojas;
-    /**
-     * Constructor básico: solo nombre, stats en 0.
-     * Debes llamar a setRandomStats() o usar los setters para asignar valores.
-     */
+    private int goles;
+    private boolean expulsado; // 🆕 Estado de expulsión
+
     public Jugador(String nombre) {
         this.nombre = nombre;
         this.posicion = null;
+        this.goles = 0;
+        this.expulsado = false; // 🆕
     }
 
-    /** Constructor con nombre y posición inicial. */
     public Jugador(String nombre, Posicion posicion) {
         this.nombre = nombre;
         this.posicion = posicion;
+        this.goles = 0;
+        this.expulsado = false; // 🆕
     }
 
-    /** Constructor con todos los valores de stats. Útil para testing o jugadores predefinidos. */
     public Jugador(String nombre, int velocidad, int tiro, int pase, int defensa, int fisico) {
         this.nombre = nombre;
         this.posicion = null;
@@ -40,51 +41,11 @@ public class Jugador {
         this.pase = pase;
         this.defensa = defensa;
         this.fisico = fisico;
+        this.goles = 0;
+        this.expulsado = false; // 🆕
     }
 
-    // ===== SETTERS PROTECTED =====
-    // Solo se exponen en subclases.
-    protected void setVelocidad(int velocidad) {
-        this.velocidad = velocidad;
-    }
-
-    protected void setTiro(int tiro) {
-        this.tiro = tiro;
-    }
-
-    protected void setPase(int pase) {
-        this.pase = pase;
-    }
-
-    protected void setDefensa(int defensa) {
-        this.defensa = defensa;
-    }
-
-    protected void setFisico(int fisico) {
-        this.fisico = fisico;
-    }
-
-    public void setPosicion(Posicion posicion) {
-        this.posicion = posicion;
-    }
-
-    public void setDorsal(int dorsal) {
-        this.dorsal = dorsal;
-    }
-
-    public void setLesiones(int lesiones) {
-        this.lesiones = lesiones;
-    }
-
-    public void setTarjetasAmarillas(int tarjetasAmarillas) {
-        this.tarjetasAmarillas = tarjetasAmarillas;
-    }
-
-    public void setTarjetasRojas(int tarjetasRojas) {
-        this.tarjetasRojas = tarjetasRojas;
-    }
-
-    // ===== GETTERS =====
+    // ===== GETTERS Y SETTERS EXISTENTES =====
 
     public String getNombre() {
         return nombre;
@@ -130,7 +91,101 @@ public class Jugador {
         return tarjetasRojas;
     }
 
-    // Asigna valores aleatorios (1-100) a todas las estadisticas.
+    public int getGoles() {
+        return goles;
+    }
+
+    // 🆕 Getter para expulsión
+    public boolean isExpulsado() {
+        return expulsado;
+    }
+
+    protected void setVelocidad(int velocidad) {
+        this.velocidad = velocidad;
+    }
+
+    protected void setTiro(int tiro) {
+        this.tiro = tiro;
+    }
+
+    protected void setPase(int pase) {
+        this.pase = pase;
+    }
+
+    protected void setDefensa(int defensa) {
+        this.defensa = defensa;
+    }
+
+    protected void setFisico(int fisico) {
+        this.fisico = fisico;
+    }
+
+    public void setPosicion(Posicion posicion) {
+        this.posicion = posicion;
+    }
+
+    public void setDorsal(int dorsal) {
+        this.dorsal = dorsal;
+    }
+
+    public void setLesiones(int lesiones) {
+        this.lesiones = lesiones;
+    }
+
+    public void setTarjetasAmarillas(int tarjetasAmarillas) {
+        this.tarjetasAmarillas = tarjetasAmarillas;
+    }
+
+    public void setTarjetasRojas(int tarjetasRojas) {
+        this.tarjetasRojas = tarjetasRojas;
+    }
+
+    public void setGoles(int goles) {
+        this.goles = goles;
+    }
+
+    // 🆕 Setter para expulsión
+    public void setExpulsado(boolean expulsado) {
+        this.expulsado = expulsado;
+    }
+
+    // ===== MÉTODOS DE TARJETAS =====
+
+    /**
+     * 🆕 Agrega una tarjeta amarilla al jugador.
+     * Si ya tiene una amarilla, se convierte en roja y es expulsado.
+     * @return true si fue expulsado por segunda amarilla
+     */
+    public boolean agregarTarjetaAmarilla() {
+        this.tarjetasAmarillas++;
+
+        // Si ya tiene 2 amarillas, se convierte en roja
+        if (this.tarjetasAmarillas >= 2) {
+            this.tarjetasRojas++;
+            this.expulsado = true;
+            return true; // Fue expulsado
+        }
+
+        return false;
+    }
+
+    /**
+     * 🆕 Agrega una tarjeta roja directa al jugador y lo expulsa.
+     */
+    public void agregarTarjetaRoja() {
+        this.tarjetasRojas++;
+        this.expulsado = true;
+    }
+
+    /**
+     * 🆕 Método auxiliar para marcar un gol.
+     */
+    public void marcarGol() {
+        this.goles++;
+    }
+
+    // ===== MÉTODOS EXISTENTES =====
+
     public void setRandomStats() {
         setVelocidad(1 + (int)(Math.random() * 100));
         setTiro(1 + (int)(Math.random() * 100));

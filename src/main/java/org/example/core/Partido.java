@@ -7,7 +7,6 @@ import org.example.entidades.Portero;
 import org.example.nombres.JugadoresNombres;
 
 import java.util.*;
-import java.util.Timer;
 
 public class Partido {
     // ===== PROBABILIDADES =====
@@ -25,9 +24,9 @@ public class Partido {
     private final Equipos equipoVisitante;
     private final Eventos evento;
     private final int duracionPartido;
+    private final int minuto;
     Timer timer;
     Random random = new Random();
-    private final int minuto;
 
 
     // ===== CONSTRUCTORES =====
@@ -172,40 +171,83 @@ public class Partido {
             }
 
         } else if (numGenerado < (prob += PROB_TARJETA_AMARILLA)) {
-            if (evento.tarjetaAmarilla(jugadorAfectado)) {
-                tarjetasAmarillas++;
-                jugadorAfectado.setTarjetasAmarillas(tarjetasAmarillas);
-                return minutoActual + ": " + "Tarjeta Amarilla! " + jugadorAfectado.getNombre() + " No parece muy contento...";
+        String resultado = evento.tarjetaAmarilla(jugadorAfectado);
+
+        if (resultado != null) {
+            if (resultado.equals("EXPULSION")) {
+                return "minuto " + minutoActual + "\t: " +
+                        "EXPULSION! " + jugadorAfectado.getNombre() +
+                        " recibe la segunda amarilla y es expulsado! " +
+                        equipoAfectado.getNombre() + " se queda con " +
+                        equipoAfectado.contarJugadoresDisponibles() + " jugadores";
             } else {
-                return "minuto " + minutoActual + "\t: " + "";
+                return "minuto " + minutoActual + "\t: " +
+                        "Tarjeta Amarilla para " + jugadorAfectado.getNombre();
             }
-        } else if (numGenerado < (prob += PROB_TARJETA_ROJA)) {
-            if (evento.tarjetaRoja(jugadorAfectado)) {
-                tarjetasRojas++;
-                jugadorAfectado.setTarjetasRojas(tarjetasRojas);
-                return "minuto " + minutoActual + "\t: " + "Tarjeta roja!!!, para " + jugadorAfectado.getNombre();
-            } else {
-                return "minuto " + minutoActual + "\t: " + "";
-            }
+        } else {
+            return "minuto " + minutoActual + "\t: " + "";
+        }
+
+    } else if (numGenerado < (prob += PROB_TARJETA_ROJA)) {
+        if (evento.tarjetaRoja(jugadorAfectado)) {
+            return "minuto " + minutoActual + "\t: " +
+                    "TARJETA ROJA DIRECTA! " + jugadorAfectado.getNombre() +
+                    " es expulsado! " + equipoAfectado.getNombre() +
+                    " se queda con " + equipoAfectado.contarJugadoresDisponibles() + " jugadores";
+        } else {
+            return "minuto " + minutoActual + "\t: " + "";
+        }
 
         } else if (numGenerado < (prob += FUERA_DE_JUEGO)) {
             if (evento.fueraDeJuego(jugadorAfectado, jugadorDefensor)) {
                 return minutoActual + ": " + jugadorAfectado.getNombre() + " estaba en una posicion adelantada, Se anula la jugada!";
             } else {
-                return "minuto " + minutoActual + "\t: " + "";
+                return "minuto " + minutoActual + "\t: ";
             }
 
         } else if (numGenerado < (prob += LESION)) {
             if (evento.lesion(jugadorAfectado)) {
                 lesiones++;
                 jugadorAfectado.setLesiones(lesiones);
-                return "minuto " + minutoActual + "\t: " + "uuuh el jugador " + jugadorAfectado.getNombre() + " cae lesionado ";
+
+                // Intentar cambio automático si hay suplentes disponibles
+                Jugador[] suplentes = equipoAfectado.getReserva();
+
+                if (suplentes.length > 0 && equipoAfectado.getCambiosRealizados() < 5) {
+                    // Buscar el primer suplente disponible (no lesionado ni expulsado)
+                    Jugador suplente = null;
+                    for (Jugador sup : suplentes) {
+                        if (sup.getLesiones() == 0 && !sup.isExpulsado()) {
+                            suplente = sup;
+                            break;
+                        }
+                    }
+
+                    if (suplente != null && equipoAfectado.cambio(jugadorAfectado, suplente)) {
+                        return "minuto " + minutoActual + "\t: " +
+                                jugadorAfectado.getNombre() + " cae lesionado! " +
+                                "Sale del campo y entra " + suplente.getNombre() + " en su lugar. " +
+                                "Cambio " + equipoAfectado.getCambiosRealizados() + "/5";
+                    } else {
+                        return "minuto " + minutoActual + "\t: " +
+                                jugadorAfectado.getNombre() + " cae lesionado pero NO hay suplentes disponibles!";
+                    }
+                } else {
+                    if (equipoAfectado.getCambiosRealizados() >= 5) {
+                        return "minuto " + minutoActual + "\t: " +
+                                jugadorAfectado.getNombre() + " cae lesionado pero ya se agotaron los cambios! Debe continuar";
+                    } else {
+                        return "minuto " + minutoActual + "\t: " +
+                                jugadorAfectado.getNombre() + " cae lesionado pero NO hay suplentes disponibles!";
+                    }
+                }
             } else {
-                return "minuto " + minutoActual + "\t: " + "";
+                return "minuto " + minutoActual + "\t: ";
             }
-        } else {
-            return "minuto " + minutoActual + "\t: " + "";
+
         }
+
+        return "minuto " + minutoActual + "\t: ";
     }
 
     // ===== HELPERS PRIVADOS =====

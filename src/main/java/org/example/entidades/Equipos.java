@@ -4,6 +4,7 @@ import org.example.enums.Posicion;
 import org.example.nombres.JugadoresNombres;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +13,10 @@ import java.util.List;
  * Un equipo tiene: 1 portero, 10 jugadores titulares, suplentes y una formación.
  */
 public class Equipos {
+    // Límite máximo de cambios permitidos por partido.
+    private static final int MAX_CAMBIOS = 5;
+    private final List<Jugador> jugadores = new ArrayList<>(10);
+    private final List<Jugador> reserva = new ArrayList<>();
     private int goles;
     private Portero portero;
     private boolean isLocal;
@@ -19,14 +24,8 @@ public class Equipos {
     private int tarjetasAmarillas;
     private int tarjetasRojas;
     private Formacion formacion;
-    private final List<Jugador> jugadores = new ArrayList<>(10);
-    private final List<Jugador> reserva = new ArrayList<>();
-
     // Contador de cambios realizados en el partido.
     private int cambiosRealizados = 0;
-
-    // Límite máximo de cambios permitidos por partido.
-    private static final int MAX_CAMBIOS = 5;
 
     // ===== CONSTRUCTORES =====
     public Equipos() {
@@ -39,23 +38,35 @@ public class Equipos {
 
     // Inicializa portero, titulares, suplentes y formación por defecto.
     private void inicializarEquipo() {
+        // Obtener COPIA de todos los nombres disponibles
+        String[] todosLosNombres = JugadoresNombres.getJugadores();
+        List<String> nombresDisponibles = new ArrayList<>(Arrays.asList(todosLosNombres));
+        Collections.shuffle(nombresDisponibles); // Mezclar
+
+        // Verificar que haya suficientes nombres
+        if (nombresDisponibles.size() < 16) { // 1 portero + 10 titulares + 5 suplentes
+            throw new IllegalStateException(
+                    "No hay suficientes nombres disponibles. Se necesitan al menos 16."
+            );
+        }
+
+        int index = 0;
+
         // Crear portero
-        Portero nuevoPortero = new Portero("Portero del " + nombre);
+        Portero nuevoPortero = new Portero(nombresDisponibles.get(index++));
         nuevoPortero.setRandomStats();
         this.portero = nuevoPortero;
 
         // Crear 10 jugadores titulares
         for (int i = 0; i < 10; i++) {
-            String nombreJugador = JugadoresNombres.getNombreAleatorio();
-            Jugador jugador = new Jugador(nombreJugador);
+            Jugador jugador = new Jugador(nombresDisponibles.get(index++));
             jugador.setRandomStats();
             this.jugadores.add(jugador);
         }
 
         // Crear 5 jugadores en la banca (suplentes)
         for (int i = 0; i < 5; i++) {
-            String nombreJugador = JugadoresNombres.getNombreAleatorio();
-            Jugador jugador = new Jugador(nombreJugador);
+            Jugador jugador = new Jugador(nombresDisponibles.get(index++));
             jugador.setRandomStats();
             this.reserva.add(jugador);
         }
@@ -63,6 +74,8 @@ public class Equipos {
         // Establecer formación por defecto
         this.formacion = new Formacion(4, 4, 2);
         asignarPosiciones();
+
+        asignarDorsales();
     }
 
     // ===== GETTERS =====
@@ -74,8 +87,12 @@ public class Equipos {
         return formacion;
     }
 
-    public Jugador getJugadorRandom() {
-        return jugadores.get((int) (Math.random() * jugadores.size()));
+    // ===== SETTERS =====
+    public void setFormacion(Formacion formacion) {
+        if (formacion != null && !formacion.isValida()) {
+            throw new IllegalArgumentException("Formación inválida: debe sumar 10 jugadores");
+        }
+        this.formacion = formacion;
     }
 
     public Jugador getJugador(int posicion) {
@@ -90,9 +107,14 @@ public class Equipos {
         return nombre;
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
     public int getTarjetasAmarillas() {
         return tarjetasAmarillas;
     }
+
     public int getTarjetasRojas() {
         return tarjetasRojas;
     }
@@ -101,8 +123,16 @@ public class Equipos {
         return isLocal;
     }
 
+    public void setLocal(boolean isLocal) {
+        this.isLocal = isLocal;
+    }
+
     public int getGoles() {
         return goles;
+    }
+
+    public void setGoles(int goles) {
+        this.goles = goles;
     }
 
     public Jugador[] getJugadores() {
@@ -113,20 +143,25 @@ public class Equipos {
         return reserva.toArray(new Jugador[0]);
     }
 
+    public int getCambiosRealizados() {
+        return cambiosRealizados;
+    }
+
+    public void setReserva(Jugador jugador) {
+        this.reserva.add(jugador);
+    }
+
     public boolean isPortero() {
         return portero != null;
     }
 
-    public boolean isFull() {
-        return portero != null && jugadores.size() == 10;
+    // Asigna el portero (sobrescribe si ya existe).
+    public void setPortero(Portero portero) {
+        this.portero = portero;
     }
 
-    // ===== SETTERS =====
-    public void setFormacion(Formacion formacion) {
-        if (formacion != null && !formacion.isValida()) {
-            throw new IllegalArgumentException("Formación inválida: debe sumar 10 jugadores");
-        }
-        this.formacion = formacion;
+    public boolean isFull() {
+        return portero != null && jugadores.size() == 10;
     }
 
     // Agrega un jugador a titulares. Devuelve false si ya hay 10.
@@ -141,32 +176,44 @@ public class Equipos {
     public int setTarjetasAmarillas() {
         return this.tarjetasAmarillas++;
     }
+
     public int setTarjetasRojas() {
         return this.tarjetasRojas++;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setLocal(boolean isLocal) {
-        this.isLocal = isLocal;
-    }
-
-    public void setGoles(int goles) {
-        this.goles = goles;
-    }
-
-    public void setReserva(Jugador jugador) {
-        this.reserva.add(jugador);
-    }
-
-    // Asigna el portero (sobrescribe si ya existe).
-    public void setPortero(Portero portero) {
-        this.portero = portero;
-    }
-
     // ===== METODOS DE EQUIPO =====
+    /**
+     * 🆕 Obtiene un jugador aleatorio que NO esté expulsado.
+     * @return jugador disponible o null si todos están expulsados
+     */
+    public Jugador getJugadorRandom() {
+        List<Jugador> disponibles = new ArrayList<>();
+        for (Jugador j : jugadores) {
+            if (!j.isExpulsado()) {
+                disponibles.add(j);
+            }
+        }
+
+        if (disponibles.isEmpty()) {
+            return null; // Todos expulsados (caso extremo)
+        }
+
+        return disponibles.get((int) (Math.random() * disponibles.size()));
+    }
+
+    /**
+     * 🆕 Cuenta cuántos jugadores en cancha NO están expulsados.
+     */
+    public int contarJugadoresDisponibles() {
+        int count = 0;
+        for (Jugador j : jugadores) {
+            if (!j.isExpulsado()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public void asignarPosiciones() {
         if (formacion == null) {
             for (Jugador jugador : jugadores) {
@@ -206,25 +253,40 @@ public class Equipos {
     }
 
     // Realiza un cambio si cumple las validaciones.
+    /**
+     * Realiza un cambio si cumple las validaciones.
+     * @param sale Jugador titular que sale
+     * @param entra Jugador suplente que entra
+     * @return true si el cambio fue exitoso
+     */
     public boolean cambio(Jugador sale, Jugador entra) {
 
         if (cambiosRealizados >= MAX_CAMBIOS) {
-            return false;
+            return false; // Ya se hicieron 5 cambios
         }
 
         if (!jugadores.contains(sale)) {
-            return false;
+            return false; // El jugador que sale no está en titulares
         }
 
         if (!reserva.contains(entra)) {
+            return false; // El jugador que entra no está en suplentes
+        }
+
+        // No permitir que entre un jugador lesionado o expulsado
+        if (entra.getLesiones() > 0 || entra.isExpulsado()) {
             return false;
         }
 
+        // Realizar el intercambio
         jugadores.remove(sale);
         reserva.remove(entra);
 
         jugadores.add(entra);
         reserva.add(sale);
+
+        // Heredar la posición del jugador que sale
+        entra.setPosicion(sale.getPosicion());
 
         cambiosRealizados++;
 
@@ -240,6 +302,26 @@ public class Equipos {
 
         asignarPosiciones();
         return true;
+    }
+
+    public void asignarDorsales() {
+        // Asignar dorsal 1 al portero
+        if (portero != null) {
+            portero.setDorsal(1);
+        }
+
+        // Asignar dorsales 2-11 a titulares
+        int dorsalActual = 2;
+        for (Jugador jugador : jugadores) {
+            jugador.setDorsal(dorsalActual);
+            dorsalActual++;
+        }
+
+        // Asignar dorsales 12+ a suplentes
+        for (Jugador jugador : reserva) {
+            jugador.setDorsal(dorsalActual);
+            dorsalActual++;
+        }
     }
 
     @Override

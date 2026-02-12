@@ -12,21 +12,33 @@ public class Eventos {
     }
 
     // ===== EVENTOS DE GOL =====
+
     public boolean tiroPuerta(Jugador atacante, Portero portero) {
         double probabilidad = (double) atacante.getTiro() /
                 (atacante.getTiro() + portero.getReflejos()) * 100;
 
-        return random.nextDouble() * 100 < probabilidad;
+        boolean esGol = random.nextDouble() * 100 < probabilidad;
+
+        if (esGol) {
+            atacante.marcarGol();
+        }
+
+        return esGol;
     }
 
-    // Penal con tiro ajustado.
     public boolean penal(Jugador tirador, Portero portero) {
         double tiroAjustado = tirador.getTiro() * 1.5;
 
         double probabilidad = tiroAjustado /
                 (tiroAjustado + portero.getReflejos()) * 100;
 
-        return random.nextDouble() * 100 < probabilidad;
+        boolean esGol = random.nextDouble() * 100 < probabilidad;
+
+        if (esGol) {
+            tirador.marcarGol();
+        }
+
+        return esGol;
     }
 
     public boolean tiroLibre(Jugador ejecutor, Portero portero) {
@@ -57,6 +69,7 @@ public class Eventos {
     }
 
     // ===== EVENTOS DE JUEGO =====
+
     public boolean saqueBanda(Jugador ejecutor, Jugador defensor) {
         int ataque = ejecutor.getPase();
         int defensa = defensor.getDefensa() + defensor.getVelocidad();
@@ -77,22 +90,38 @@ public class Eventos {
     }
 
     // ===== TARJETAS =====
-    public boolean tarjetaAmarilla(Jugador jugador) {
+
+    /**
+     * 🆕 Muestra tarjeta amarilla al jugador.
+     * @return "EXPULSION" si fue la segunda amarilla, "AMARILLA" si es la primera, null si no hubo tarjeta
+     */
+    public String tarjetaAmarilla(Jugador jugador) {
         double probabilidad = (100 - jugador.getDefensa()) / 8.0;
 
-        return random.nextDouble() * 100 < probabilidad;
+        boolean hayTarjeta = random.nextDouble() * 100 < probabilidad;
+
+        if (hayTarjeta) {
+            boolean expulsado = jugador.agregarTarjetaAmarilla();
+            return expulsado ? "EXPULSION" : "AMARILLA";
+        }
+
+        return null;
     }
 
+    /**
+     * 🆕 Muestra tarjeta roja directa al jugador.
+     * @return siempre true (siempre hay expulsión con roja directa)
+     */
     public boolean tarjetaRoja(Jugador jugador) {
-        jugador.setTarjetasRojas(jugador.getTarjetasRojas() + 1);
+        jugador.agregarTarjetaRoja();
         return true;
     }
 
     // ===== LESIONES =====
+
     public boolean lesion(Jugador jugador) {
         double probabilidad = (100 - jugador.getFisico()) / 10.0;
 
         return random.nextDouble() * 100 < probabilidad;
     }
-
 }

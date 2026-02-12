@@ -26,6 +26,8 @@ public class SimuladorFutbol extends JFrame {
     private int tarjetasRojasLocal, tarjetasRojasVisitante;
     private final Random random;
 
+    private InfoJugadores ventanaEquipos = null;
+
     // ===== CONSTRUCTORES =====
     public SimuladorFutbol() {
         setTitle("Simulador de Fútbol");
@@ -35,6 +37,7 @@ public class SimuladorFutbol extends JFrame {
 
         String[] equipos = EquiposNombres.getEquipos();
 
+        // ===== PANEL SUPERIOR: Selección de equipos =====
         JPanel panelEquipos = new JPanel();
         panelEquipos.setLayout(new GridLayout(2, 2));
 
@@ -50,22 +53,78 @@ public class SimuladorFutbol extends JFrame {
 
         add(panelEquipos, BorderLayout.NORTH);
 
+        // ===== CENTRO: Área de texto para eventos =====
         areaTexto = new JTextArea();
         areaTexto.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(areaTexto);
         add(scrollPane, BorderLayout.CENTER);
 
+        // ===== PANEL INFERIOR: Botones =====
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new FlowLayout());
+
+        // Botón "Iniciar Partido"
         botonIniciar = new JButton("Iniciar Partido");
-        add(botonIniciar, BorderLayout.SOUTH);
-
-        random = new Random();
-
         botonIniciar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 iniciarPartido();
             }
         });
+        panelBotones.add(botonIniciar);
+
+        // Botón "Ver Equipos"
+        JButton btnVerEquipos = new JButton("Ver Equipos");
+        btnVerEquipos.addActionListener(e -> {
+            if (equipoLocal != null && equipoVisitante != null) {
+
+                // 🆕 Verificar si ya existe y está visible
+                if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
+                    ventanaEquipos.toFront(); // Traer al frente
+                    ventanaEquipos.requestFocus(); // Dar foco
+                    return; // Salir sin crear nueva ventana
+                }
+
+                // Crear nueva ventana solo si no existe
+                ventanaEquipos = new InfoJugadores(
+                        equipoLocal,
+                        equipoVisitante,
+                        SimuladorFutbol.this
+                );
+
+                // Posicionar a la derecha
+                Point ubicacion = SimuladorFutbol.this.getLocation();
+                int anchoVentanaPrincipal = SimuladorFutbol.this.getWidth();
+                ventanaEquipos.setLocation(
+                        ubicacion.x + anchoVentanaPrincipal + 10,
+                        ubicacion.y
+                );
+
+                // 🆕 Listener para limpiar la referencia cuando se cierre
+                ventanaEquipos.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosed(java.awt.event.WindowEvent e) {
+                        ventanaEquipos = null; // Limpiar referencia
+                    }
+                });
+
+                ventanaEquipos.setVisible(true);
+
+            } else {
+                JDialog.setDefaultLookAndFeelDecorated(true);
+                JOptionPane.showMessageDialog(
+                        SimuladorFutbol.this,
+                        "Primero debes iniciar un partido para ver los equipos",
+                        "Equipos no disponibles",
+                        JOptionPane.WARNING_MESSAGE
+                );
+            }
+        });
+        panelBotones.add(btnVerEquipos);
+
+        add(panelBotones, BorderLayout.SOUTH);
+
+        random = new Random();
     }
 
     // ===== PUNTO DE ENTRADA =====
@@ -82,7 +141,6 @@ public class SimuladorFutbol extends JFrame {
         equipoLocal = new Equipos(strEquipoLocal);
         equipoVisitante = new Equipos(strEquipoVisitante);
 
-
         if (strEquipoLocal.equals(strEquipoVisitante)) {
             areaTexto.setText("Los equipos local y visitante no pueden ser el mismo.\n");
             return;
@@ -92,19 +150,23 @@ public class SimuladorFutbol extends JFrame {
         equipoLocal = partido.getEquipoLocal();
         equipoVisitante = partido.getEquipoVisitante();
 
-
         areaTexto.setText("Inicia el partido entre " + equipoLocal.getNombre() + " y " + equipoVisitante.getNombre() + "...\n");
         minuto = 0;
         golesLocal = 0;
         golesVisitante = 0;
         botonIniciar.setEnabled(false);
 
-        // Configurar el temporizador para simular minuto a minuto
-        // 1000 ms representa un minuto simulado
+        // Configurar el temporizador
         timer = new Timer(1000, e -> {
             String evento = partido.procesarMinuto(minuto, equipoLocal, equipoVisitante);
-            System.out.println(evento); // Depuracion
+            System.out.println(evento);
             areaTexto.append(evento + "\n");
+
+            // 🆕 Actualizar ventana de equipos si está abierta
+            if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
+                ventanaEquipos.actualizarTablas();
+            }
+
             minuto++;
 
             if (minuto == 90) {
@@ -131,6 +193,12 @@ public class SimuladorFutbol extends JFrame {
                 } else {
                     areaTexto.append("El partido termina en empate.\n");
                 }
+
+                // 🆕 Actualización final
+                if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
+                    ventanaEquipos.actualizarTablas();
+                }
+
                 botonIniciar.setEnabled(true);
             }
         });
