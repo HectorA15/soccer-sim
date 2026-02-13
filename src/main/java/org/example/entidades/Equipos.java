@@ -71,22 +71,6 @@ public class Equipos {
         return cambiosRealizados;
     }
 
-    public Jugador getJugadorRandom() {
-        List<Jugador> disponibles = new ArrayList<>();
-        for (Jugador jugador : jugadores) {
-            if (!jugador.isExpulsado()) {
-                disponibles.add(jugador);
-            }
-        }
-        if (disponibles.isEmpty()) {
-            return null;
-        }
-        return disponibles.get((int) (Math.random() * disponibles.size()));
-    }
-
-    public boolean isPortero() {
-        return portero != null;
-    }
 
 
 
@@ -115,6 +99,24 @@ public class Equipos {
     public void setPortero(Portero portero) {this.portero = portero;}
 
     // ===== MÉTODOS DE EQUIPO =====
+    public Jugador getJugadorRandom() {
+        List<Jugador> disponibles = new ArrayList<>();
+        for (Jugador jugador : jugadores) {
+            if (!jugador.isExpulsado()) {
+                disponibles.add(jugador);
+            }
+        }
+        if (disponibles.isEmpty()) {
+            return null;
+        }
+        return disponibles.get((int) (Math.random() * disponibles.size()));
+    }
+
+    public boolean isPortero() {
+        return portero != null;
+    }
+
+
     /**
      * Inicializa el equipo con portero, 10 titulares, 5 suplentes y formación por defecto.
      * Asigna nombres únicos a todos los jugadores y dorsales.
@@ -194,7 +196,6 @@ public class Equipos {
             jugadores.get(index).setPosicion(Posicion.DELANTERO);
         }
     }
-
 
     /**
      * Asigna dorsales únicos a todos los jugadores del equipo.
