@@ -114,11 +114,11 @@ public class Partido {
                 equipoAfectado.setGoles(goles);
                 return "minuto " + minutoActual + "\t: " +
                         jugadorAfectado.getNombre() +
-                        " dispara y marca gol para " + equipoAfectado.getNombre();
+                        " dispara y... marca GOOOOOOL PARA " + equipoAfectado.getNombre();
             } else {
                 return "minuto " + minutoActual + "\t: " +
                         jugadorAfectado.getNombre() +
-                        " dispara, pero " + porteroDefensor.getNombre() + " ataja el balon";
+                        " DISPARA!, pero... " + porteroDefensor.getNombre() + " ATAJA el balon";
             }
 
             // PENAL
@@ -174,12 +174,12 @@ public class Partido {
                 if (resultado.equals("EXPULSION")) {
                     return "minuto " + minutoActual + "\t: " +
                             "EXPULSION! " + jugadorAfectado.getNombre() +
-                            " recibe la segunda amarilla y es expulsado! " +
-                            equipoAfectado.getNombre() + " se queda con " +
-                            equipoAfectado.contarJugadoresDisponibles() + " jugadores";
+                            " RECIBE SU SEGUNDA TARJETA AMARILLA! AHORA " +
+                            equipoAfectado.getNombre() + " SE QUEDA NO " +
+                            equipoAfectado.contarJugadoresDisponibles() + " JUGADORES!";
                 } else {
                     return "minuto " + minutoActual + "\t: " +
-                            "Tarjeta Amarilla para " + jugadorAfectado.getNombre();
+                            "Nooo... Tarjeta Amarilla para " + jugadorAfectado.getNombre();
                 }
             } else {
                 return "minuto " + minutoActual + "\t: " + "";
@@ -190,8 +190,8 @@ public class Partido {
             if (evento.tarjetaRoja(jugadorAfectado)) {
                 return "minuto " + minutoActual + "\t: " +
                         "TARJETA ROJA DIRECTA! " + jugadorAfectado.getNombre() +
-                        " es expulsado! " + equipoAfectado.getNombre() +
-                        " se queda con " + equipoAfectado.contarJugadoresDisponibles() + " jugadores";
+                        " QUEDA EXPULSADO! " + equipoAfectado.getNombre() +
+                        " SOLO QUEDA CON " + equipoAfectado.contarJugadoresDisponibles() + " JUGADORES!";
             } else {
                 return "minuto " + minutoActual + "\t: " + "";
             }
@@ -226,8 +226,8 @@ public class Partido {
 
                     if (suplente != null && equipoAfectado.cambio(jugadorAfectado, suplente)) {
                         return "minuto " + minutoActual + "\t: " +
-                                jugadorAfectado.getNombre() + " cae lesionado! " +
-                                "Sale del campo y entra " + suplente.getNombre() + " en su lugar. " +
+                                jugadorAfectado.getNombre() + " SE LESIONA, QUE DOLOOR! " +
+                                "Sale del campo y entra... " + suplente.getNombre() + " en su lugar. " +
                                 "Cambio " + equipoAfectado.getCambiosRealizados() + "/5";
                     } else {
                         return "minuto " + minutoActual + "\t: " +
