@@ -7,7 +7,7 @@ import java.util.Random;
 /**
  * Gestiona todos los eventos que pueden ocurrir durante un partido de fútbol.
  * Incluye: goles (tiros, penales, tiros libres, esquinas), tarjetas, lesiones y eventos de juego.
- * Cada método calcula probabilidades basadas en las estadísticas de los jugadores involucrados.
+ * Cada metdo calcula probabilidades basadas en las estadísticas de los jugadores involucrados.
  */
 public class Eventos {
 
@@ -32,13 +32,10 @@ public class Eventos {
     public boolean tiroPuerta(Jugador atacante, Portero portero) {
         double probabilidad = (double) atacante.getTiro() /
                 (atacante.getTiro() + portero.getReflejos()) * 100;
-
         boolean esGol = random.nextDouble() * 100 < probabilidad;
-
         if (esGol) {
             atacante.marcarGol();
         }
-
         return esGol;
     }
 
@@ -52,16 +49,13 @@ public class Eventos {
      */
     public boolean penal(Jugador tirador, Portero portero) {
         double tiroAjustado = tirador.getTiro() * 1.5;
-
         double probabilidad = tiroAjustado /
                 (tiroAjustado + portero.getReflejos()) * 100;
 
         boolean esGol = random.nextDouble() * 100 < probabilidad;
-
         if (esGol) {
             tirador.marcarGol();
         }
-
         return esGol;
     }
 

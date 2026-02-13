@@ -29,9 +29,6 @@ public class Equipos {
 
     // ===== CONSTRUCTORES =====
 
-    public Equipos() {
-    }
-
     /**
      * Constructor que crea un equipo completo con jugadores aleatorios.
      * @param nombre Nombre del equipo
@@ -41,6 +38,83 @@ public class Equipos {
         inicializarEquipo();
     }
 
+    // ===== GETTERS =====
+
+    public Portero getPortero() {
+        return portero;
+    }
+    public Formacion getFormacion() {
+        return formacion;
+    }
+    public String getNombre() {
+        return nombre;
+    }
+    public int getTarjetasAmarillas() {
+        return tarjetasAmarillas;
+    }
+    public int getTarjetasRojas() {
+        return tarjetasRojas;
+    }
+    public boolean isLocal() {
+        return isLocal;
+    }
+    public int getGoles() {
+        return goles;
+    }
+    public Jugador[] getJugadores() {
+        return jugadores.toArray(new Jugador[0]);
+    }
+    public Jugador[] getReserva() {
+        return reserva.toArray(new Jugador[0]);
+    }
+    public int getCambiosRealizados() {
+        return cambiosRealizados;
+    }
+
+    public Jugador getJugadorRandom() {
+        List<Jugador> disponibles = new ArrayList<>();
+        for (Jugador jugador : jugadores) {
+            if (!jugador.isExpulsado()) {
+                disponibles.add(jugador);
+            }
+        }
+        if (disponibles.isEmpty()) {
+            return null;
+        }
+        return disponibles.get((int) (Math.random() * disponibles.size()));
+    }
+
+    public boolean isPortero() {
+        return portero != null;
+    }
+
+
+
+
+    // ===== SETTERS =====
+
+    public void setFormacion(Formacion formacion) {
+        if (formacion != null && !formacion.isValida()) {
+            throw new IllegalArgumentException("Formación inválida: debe sumar 10 jugadores");
+        }
+        this.formacion = formacion;
+    }
+
+    public boolean setJugador(Jugador jugador) {
+        if (jugadores.size() >= 10) {
+            return false;
+        }
+        this.jugadores.add(jugador);
+        return true;
+    }
+
+    public void setNombre(String nombre) {this.nombre = nombre;}
+    public void setLocal(boolean isLocal) {this.isLocal = isLocal;}
+    public void setGoles(int goles) {this.goles = goles;}
+    public void setReserva(Jugador jugador) {this.reserva.add(jugador);}
+    public void setPortero(Portero portero) {this.portero = portero;}
+
+    // ===== MÉTODOS DE EQUIPO =====
     /**
      * Inicializa el equipo con portero, 10 titulares, 5 suplentes y formación por defecto.
      * Asigna nombres únicos a todos los jugadores y dorsales.
@@ -79,115 +153,6 @@ public class Equipos {
         asignarDorsales();
     }
 
-    // ===== GETTERS =====
-
-    /**
-     * Obtiene el portero del equipo.
-     * @return Portero del equipo
-     */
-    public Portero getPortero() {
-        return portero;
-    }
-
-    /**
-     * Obtiene la formación actual del equipo.
-     * @return Formación del equipo
-     */
-    public Formacion getFormacion() {
-        return formacion;
-    }
-
-    /**
-     * Obtiene un jugador aleatorio que NO esté expulsado.
-     * @return Jugador disponible o null si todos están expulsados
-     */
-    public Jugador getJugadorRandom() {
-        List<Jugador> disponibles = new ArrayList<>();
-        for (Jugador j : jugadores) {
-            if (!j.isExpulsado()) {
-                disponibles.add(j);
-            }
-        }
-
-        if (disponibles.isEmpty()) {
-            return null;
-        }
-
-        return disponibles.get((int) (Math.random() * disponibles.size()));
-    }
-
-    /**
-     * Obtiene el nombre del equipo.
-     * @return Nombre del equipo
-     */
-    public String getNombre() {
-        return nombre;
-    }
-
-    /**
-     * Obtiene el total de tarjetas amarillas del equipo.
-     * @return Cantidad de tarjetas amarillas
-     */
-    public int getTarjetasAmarillas() {
-        return tarjetasAmarillas;
-    }
-
-    /**
-     * Obtiene el total de tarjetas rojas del equipo.
-     * @return Cantidad de tarjetas rojas
-     */
-    public int getTarjetasRojas() {
-        return tarjetasRojas;
-    }
-
-    /**
-     * Verifica si el equipo es local.
-     * @return true si es local, false si es visitante
-     */
-    public boolean isLocal() {
-        return isLocal;
-    }
-
-    /**
-     * Obtiene el total de goles del equipo.
-     * @return Cantidad de goles
-     */
-    public int getGoles() {
-        return goles;
-    }
-
-    /**
-     * Obtiene todos los jugadores titulares como array.
-     * @return Array de jugadores titulares
-     */
-    public Jugador[] getJugadores() {
-        return jugadores.toArray(new Jugador[0]);
-    }
-
-    /**
-     * Obtiene todos los jugadores suplentes como array.
-     * @return Array de jugadores suplentes
-     */
-    public Jugador[] getReserva() {
-        return reserva.toArray(new Jugador[0]);
-    }
-
-    /**
-     * Verifica si el equipo tiene portero asignado.
-     * @return true si tiene portero, false si no
-     */
-    public boolean isPortero() {
-        return portero != null;
-    }
-
-    /**
-     * Obtiene la cantidad de cambios realizados en el partido.
-     * @return Número de cambios realizados
-     */
-    public int getCambiosRealizados() {
-        return cambiosRealizados;
-    }
-
     /**
      * Cuenta cuántos jugadores en cancha NO están expulsados.
      * @return Cantidad de jugadores disponibles
@@ -202,74 +167,6 @@ public class Equipos {
         return count;
     }
 
-    // ===== SETTERS =====
-
-    /**
-     * Asigna la formación del equipo.
-     * @param formacion Nueva formación (debe sumar 10 jugadores)
-     * @throws IllegalArgumentException si la formación no es válida
-     */
-    public void setFormacion(Formacion formacion) {
-        if (formacion != null && !formacion.isValida()) {
-            throw new IllegalArgumentException("Formación inválida: debe sumar 10 jugadores");
-        }
-        this.formacion = formacion;
-    }
-
-    /**
-     * Agrega un jugador a titulares.
-     * @param jugador Jugador a agregar
-     * @return true si se agregó exitosamente, false si ya hay 10 titulares
-     */
-    public boolean setJugador(Jugador jugador) {
-        if (jugadores.size() >= 10) {
-            return false;
-        }
-        this.jugadores.add(jugador);
-        return true;
-    }
-
-    /**
-     * Asigna el nombre del equipo.
-     * @param nombre Nombre del equipo
-     */
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    /**
-     * Asigna si el equipo es local o visitante.
-     * @param isLocal true para local, false para visitante
-     */
-    public void setLocal(boolean isLocal) {
-        this.isLocal = isLocal;
-    }
-
-    /**
-     * Asigna el total de goles del equipo.
-     * @param goles Cantidad de goles
-     */
-    public void setGoles(int goles) {
-        this.goles = goles;
-    }
-
-    /**
-     * Agrega un jugador a la banca de suplentes.
-     * @param jugador Jugador a agregar como suplente
-     */
-    public void setReserva(Jugador jugador) {
-        this.reserva.add(jugador);
-    }
-
-    /**
-     * Asigna el portero del equipo (reemplaza si ya existe uno).
-     * @param portero Nuevo portero
-     */
-    public void setPortero(Portero portero) {
-        this.portero = portero;
-    }
-
-    // ===== MÉTODOS DE EQUIPO =====
 
     /**
      * Asigna posiciones a los jugadores según la formación actual.
@@ -361,42 +258,4 @@ public class Equipos {
         return true;
     }
 
-
-    //Solo se uso para mostrar el equipo en consola, no es necesario modificarlo y no tiene ningun uso actualmente
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\"").append(this.nombre).append("\"").append("\n");
-
-        if (formacion != null) {
-            sb.append("Formación: ").append(formacion).append("\n");
-        }
-
-        sb.append("\n");
-        sb.append(" ".repeat(35)).append("Equipo ")
-                .append(isLocal ? "Local" : "Visitante").append("\n\n");
-
-        sb.append("PORTERO\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %5s %5s %10s\n\n",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Saq", "Ref", "Posición"));
-        sb.append(portero).append("\n\n");
-
-        sb.append("JUGADORES\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s\n\n",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición"));
-
-        for (Jugador jugador : jugadores) {
-            sb.append(jugador).append("\n");
-        }
-
-        sb.append("\nRESERVA\n");
-        sb.append(String.format("%-25s %5s %5s %5s %5s %5s %10s\n\n",
-                "Nombre", "Vel", "Tiro", "Pase", "Def", "Fis", "Posición"));
-
-        for (Jugador jugador : reserva) {
-            sb.append(jugador).append("\n");
-        }
-
-        return sb.toString();
-    }
 }

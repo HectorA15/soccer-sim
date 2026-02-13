@@ -25,7 +25,7 @@ public class Jugador {
 
     /**
      * Constructor básico con solo el nombre.
-     * Las estadísticas deben asignarse posteriormente con setRandomStats() o los setters.
+     * Las estadísticas deben asignarse despues con setRandomStats() o los setters.
      * @param nombre Nombre del jugador
      */
     public Jugador(String nombre) {
@@ -35,210 +35,84 @@ public class Jugador {
         this.expulsado = false;
     }
 
+    // ===== SETTERS =====
+
+    protected void setVelocidad(int velocidad) {
+        this.velocidad = velocidad;
+    }
+    protected void setTiro(int tiro) {
+        this.tiro = tiro;
+    }
+    protected void setPase(int pase) {
+        this.pase = pase;
+    }
+    protected void setDefensa(int defensa) {
+        this.defensa = defensa;
+    }
+    protected void setFisico(int fisico) { this.fisico = fisico; }
+    protected void setDorsal(int dorsal) {this.dorsal = dorsal;}
+    public void setPosicion(Posicion posicion) {
+        this.posicion = posicion;
+    }
+    public void setLesiones(int lesiones) {
+        this.lesiones = lesiones;
+    }
+    public void setTarjetasAmarillas(int tarjetasAmarillas) {
+        this.tarjetasAmarillas = tarjetasAmarillas;
+    }
+    public void setTarjetasRojas(int tarjetasRojas) {
+        this.tarjetasRojas = tarjetasRojas;
+    }
+    public void setGoles(int goles) {
+        this.goles = goles;
+    }
+    public void setExpulsado(boolean expulsado) {
+        this.expulsado = expulsado;
+    }
 
     // ===== GETTERS =====
 
-    /**
-     * Obtiene el nombre del jugador.
-     * @return Nombre del jugador
-     */
     public String getNombre() {
         return nombre;
     }
-
-    /**
-     * Obtiene la posición del jugador en el campo.
-     * @return Posición del jugador
-     */
     public Posicion getPosicion() {
         return posicion;
     }
-
-    /**
-     * Obtiene la velocidad del jugador.
-     * @return Velocidad (1-100)
-     */
     public int getVelocidad() {
         return velocidad;
     }
-
-    /**
-     * Obtiene la capacidad de tiro del jugador.
-     * @return Tiro (1-100)
-     */
     public int getTiro() {
         return tiro;
     }
-
-    /**
-     * Obtiene la capacidad de pase del jugador.
-     * @return Pase (1-100)
-     */
     public int getPase() {
         return pase;
     }
-
-    /**
-     * Obtiene la capacidad defensiva del jugador.
-     * @return Defensa (1-100)
-     */
     public int getDefensa() {
         return defensa;
     }
-
-    /**
-     * Obtiene la resistencia física del jugador.
-     * @return Físico (1-100)
-     */
     public int getFisico() {
         return fisico;
     }
-
-    /**
-     * Obtiene el número de dorsal del jugador.
-     * @return Número de dorsal
-     */
     public int getDorsal() {
         return dorsal;
     }
-
-    /**
-     * Obtiene el número de lesiones del jugador.
-     * @return Cantidad de lesiones
-     */
     public int getLesiones() {
         return lesiones;
     }
-
-    /**
-     * Obtiene el número de tarjetas amarillas recibidas.
-     * @return Cantidad de tarjetas amarillas
-     */
     public int getTarjetasAmarillas() {
         return tarjetasAmarillas;
     }
-
-    /**
-     * Obtiene el número de tarjetas rojas recibidas.
-     * @return Cantidad de tarjetas rojas
-     */
     public int getTarjetasRojas() {
         return tarjetasRojas;
     }
-
-    /**
-     * Obtiene el número de goles marcados por el jugador.
-     * @return Cantidad de goles
-     */
     public int getGoles() {
         return goles;
     }
-
-    /**
-     * Verifica si el jugador está expulsado.
-     * @return true si está expulsado, false en caso contrario
-     */
     public boolean isExpulsado() {
         return expulsado;
     }
 
-    // ===== SETTERS =====
 
-    /**
-     * Asigna la velocidad del jugador.
-     * @param velocidad Velocidad (1-100)
-     */
-    protected void setVelocidad(int velocidad) {
-        this.velocidad = velocidad;
-    }
-
-    /**
-     * Asigna la capacidad de tiro del jugador.
-     * @param tiro Tiro (1-100)
-     */
-    protected void setTiro(int tiro) {
-        this.tiro = tiro;
-    }
-
-    /**
-     * Asigna la capacidad de pase del jugador.
-     * @param pase Pase (1-100)
-     */
-    protected void setPase(int pase) {
-        this.pase = pase;
-    }
-
-    /**
-     * Asigna la capacidad defensiva del jugador.
-     * @param defensa Defensa (1-100)
-     */
-    protected void setDefensa(int defensa) {
-        this.defensa = defensa;
-    }
-
-    /**
-     * Asigna la resistencia física del jugador.
-     * @param fisico Físico (1-100)
-     */
-    protected void setFisico(int fisico) {
-        this.fisico = fisico;
-    }
-
-    /**
-     * Asigna la posición del jugador en el campo.
-     * @param posicion Nueva posición
-     */
-    public void setPosicion(Posicion posicion) {
-        this.posicion = posicion;
-    }
-
-    /**
-     * Asigna el número de dorsal del jugador.
-     * @param dorsal Número de dorsal
-     */
-    public void setDorsal(int dorsal) {
-        this.dorsal = dorsal;
-    }
-
-    /**
-     * Asigna el número de lesiones del jugador.
-     * @param lesiones Cantidad de lesiones
-     */
-    public void setLesiones(int lesiones) {
-        this.lesiones = lesiones;
-    }
-
-    /**
-     * Asigna el número de tarjetas amarillas.
-     * @param tarjetasAmarillas Cantidad de tarjetas amarillas
-     */
-    public void setTarjetasAmarillas(int tarjetasAmarillas) {
-        this.tarjetasAmarillas = tarjetasAmarillas;
-    }
-
-    /**
-     * Asigna el número de tarjetas rojas.
-     * @param tarjetasRojas Cantidad de tarjetas rojas
-     */
-    public void setTarjetasRojas(int tarjetasRojas) {
-        this.tarjetasRojas = tarjetasRojas;
-    }
-
-    /**
-     * Asigna el número de goles del jugador.
-     * @param goles Cantidad de goles
-     */
-    public void setGoles(int goles) {
-        this.goles = goles;
-    }
-
-    /**
-     * Asigna el estado de expulsión del jugador.
-     * @param expulsado true si está expulsado, false si no
-     */
-    public void setExpulsado(boolean expulsado) {
-        this.expulsado = expulsado;
-    }
 
     // ===== MÉTODOS DE TARJETAS =====
 

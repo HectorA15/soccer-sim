@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Clase utilitaria que proporciona nombres de jugadores de fútbol famosos.
- * Incluye jugadores actuales y leyendas históricas del fútbol mundial.
+ * Clase utilitaria que proporciona nombres de jugadores de fútbol.
  * Utilizada para asignar nombres aleatorios a los jugadores en las simulaciones.
  */
 public final class JugadoresNombres {

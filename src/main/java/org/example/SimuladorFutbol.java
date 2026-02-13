@@ -148,11 +148,6 @@ public class SimuladorFutbol extends JFrame {
         String strEquipoLocal = (String) comboLocal.getSelectedItem();
         String strEquipoVisitante = (String) comboVisitante.getSelectedItem();
 
-        if (strEquipoLocal.equals(strEquipoVisitante)) {
-            areaTexto.setText("Los equipos local y visitante no pueden ser el mismo.\n");
-            return;
-        }
-
         // Crear equipos
         equipoLocal = new Equipos(strEquipoLocal);
         equipoVisitante = new Equipos(strEquipoVisitante);
@@ -237,7 +232,7 @@ public class SimuladorFutbol extends JFrame {
      * Convierte un string de formacion (ej: "4-4-2") en un objeto Formacion.
      *
      * @param formacionStr String con formato "D-M-A" (defensas-mediocampistas-delanteros)
-     * @return Objeto Formacion correspondiente
+     * @return Objeto Formacion
      */
     private Formacion parsearFormacion(String formacionStr) {
         String[] partes = formacionStr.split("-");

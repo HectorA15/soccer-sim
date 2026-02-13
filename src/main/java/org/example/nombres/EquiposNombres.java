@@ -3,8 +3,7 @@ package org.example.nombres;
 import java.util.Arrays;
 
 /**
- * Clase utilitaria que proporciona nombres de equipos de fútbol famosos.
- * Incluye equipos de ligas europeas y de la Liga MX.
+ * Clase utilitaria que proporciona nombres de equipos de fútbol.
  * Utilizada para seleccionar nombres de equipos en las simulaciones.
  */
 public final class EquiposNombres {
