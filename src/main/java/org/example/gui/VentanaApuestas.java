@@ -169,7 +169,7 @@ public class VentanaApuestas extends JFrame {
 
         apuestasActivas.clear();
 
-        // Verificamos si la tabla existe (por si la ventana está abierta)
+        // vemos si la tabla existe (por si la ventana está abierta)
         if (modeloTabla != null) {
             modeloTabla.setRowCount(0);
         }

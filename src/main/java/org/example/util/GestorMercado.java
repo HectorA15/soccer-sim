@@ -21,8 +21,6 @@ public class GestorMercado {
         this.cuotaVisitante = 1.0;
     }
 
-
-
     public void actualizarCuotas(int minuto, int golesLocalActuales, int golesVisitaActuales, Equipos equipoLocal, Equipos equipoVisitante) {
         int minutosRestantes = 90 - minuto;
         double factorTiempo = (double) minutosRestantes / 90.0;

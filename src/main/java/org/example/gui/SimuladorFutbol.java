@@ -12,7 +12,6 @@ import java.util.Random;
 
 /**
  * Ventana principal del simulador de futbol.
- * REFACTORIZADA: Integra GestorMercado y separa la lógica de UI en métodos privados.
  */
 public class SimuladorFutbol extends JFrame {
 
@@ -63,7 +62,7 @@ public class SimuladorFutbol extends JFrame {
     }
 
     /**
-     * Configura paneles, botones y combos. Mantiene el constructor limpio.
+     * Configura paneles, botones y combos.
      */
     private void inicializarComponentes() {
         String[] equipos = EquiposNombres.getEquipos();
