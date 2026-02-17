@@ -20,14 +20,9 @@ public class VentanaApuestas extends JFrame {
         mensaje.setFont(new Font("Arial", Font.BOLD, 18));
         add(mensaje, BorderLayout.CENTER);
 
-        JButton btnVolver = new JButton("Regresar al Inicio");
-        btnVolver.addActionListener(e -> {
-            dispose();
-            new Inicio().setVisible(true);
-        });
 
-        JPanel panelInferior = new JPanel();
-        panelInferior.add(btnVolver);
+
+        JPanel panelInferior = new JPanel();;
 
         add(panelInferior, BorderLayout.SOUTH);
     }
