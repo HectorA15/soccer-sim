@@ -99,6 +99,45 @@ public class Equipos {
     public void setPortero(Portero portero) {this.portero = portero;}
 
     // ===== MÉTODOS DE EQUIPO =====
+    public double getPoderOfensivo(){
+        double totalTiro = 0;
+        double totalVelocidad = 0;
+        double totalPase = 0;
+        double poderOfensivo = 0;
+
+        for (Jugador jugador : jugadores) {
+            if (!jugador.isExpulsado()) {
+                totalTiro += jugador.getTiro();
+                totalPase += jugador.getPase();
+                totalVelocidad += jugador.getVelocidad();
+            }
+        }
+
+        poderOfensivo = (totalTiro * 0.65) + (totalPase * 0.25) + (totalVelocidad * 0.1);
+        return poderOfensivo;
+    }
+
+    public double getPoderDefensivo(){
+        double totalReflejos = 0;
+        double totalDefensa = 0;
+        double totalFisico = 0;
+        double poderDefensivo = 0;
+
+        totalReflejos = portero.getReflejos();
+
+        for (Jugador jugador : jugadores) {
+            if (!jugador.isExpulsado()) {
+                totalDefensa += jugador.getDefensa();
+                totalFisico += jugador.getFisico();
+            }
+        }
+
+        poderDefensivo = (totalReflejos * 0.75) + ((totalDefensa + totalFisico) * 0.25);
+        return poderDefensivo;
+    }
+
+
+
     public Jugador getJugadorRandom() {
         List<Jugador> disponibles = new ArrayList<>();
         for (Jugador jugador : jugadores) {

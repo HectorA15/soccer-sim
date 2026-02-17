@@ -23,11 +23,8 @@ public class Jugador {
     private int goles;
     private boolean expulsado;
 
-    /**
-     * Constructor básico con solo el nombre.
-     * Las estadísticas deben asignarse despues con setRandomStats() o los setters.
-     * @param nombre Nombre del jugador
-     */
+
+    // Las estadísticas deben asignarse despues con setRandomStats() o los setters.
     public Jugador(String nombre) {
         this.nombre = nombre;
         this.posicion = null;
@@ -116,11 +113,8 @@ public class Jugador {
 
     // ===== MÉTODOS DE TARJETAS =====
 
-    /**
-     * Agrega una tarjeta amarilla al jugador.
-     * Si ya tiene una amarilla, se convierte en roja y el jugador es expulsado.
-     * @return true si fue expulsado por segunda amarilla, false si solo recibió amarilla
-     */
+    // Agrega una tarjeta amarilla al jugador.
+    // Si ya tiene una amarilla, se convierte en roja y el jugador es expulsado.
     public boolean agregarTarjetaAmarilla() {
         this.tarjetasAmarillas++;
 
@@ -133,26 +127,20 @@ public class Jugador {
         return false;
     }
 
-    /**
-     * Agrega una tarjeta roja directa al jugador y lo expulsa del partido.
-     */
+    // Agrega una tarjeta roja directa al jugador y lo expulsa del partido.
     public void agregarTarjetaRoja() {
         this.tarjetasRojas++;
         this.expulsado = true;
     }
 
-    /**
-     * Incrementa el contador de goles del jugador en 1.
-     */
+    // Incrementa el contador de goles del jugador en 1
     public void marcarGol() {
         this.goles++;
     }
 
     // ===== MÉTODOS DE ESTADÍSTICAS =====
 
-    /**
-     * Asigna valores aleatorios (1-100) a todas las estadísticas del jugador.
-     */
+    //Asigna valores aleatorios (1-100) a todas las estadísticas del jugador
     public void setRandomStats() {
         setVelocidad(1 + (int)(Math.random() * 100));
         setTiro(1 + (int)(Math.random() * 100));

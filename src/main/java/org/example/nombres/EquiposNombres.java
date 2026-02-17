@@ -8,9 +8,6 @@ import java.util.Arrays;
  */
 public final class EquiposNombres {
 
-    /**
-     * Constructor privado para evitar instanciación de esta clase utilitaria.
-     */
     private EquiposNombres() {
     }
 

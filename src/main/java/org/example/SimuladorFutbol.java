@@ -17,12 +17,13 @@ import java.util.Random;
  */
 public class SimuladorFutbol extends JFrame {
 
-    private final JTextArea areaTexto;
-    private final JButton botonIniciar;
-    private final JComboBox<String> comboLocal;
-    private final JComboBox<String> comboVisitante;
-    private final JComboBox<String> comboFormacionLocal;
-    private final JComboBox<String> comboFormacionVisitante;
+    private JTextArea areaTexto;
+    private JButton botonIniciar;
+    private JButton btnVerEquipos;
+    private JComboBox<String> comboLocal;
+    private JComboBox<String> comboVisitante;
+    private JComboBox<String> comboFormacionLocal;
+    private JComboBox<String> comboFormacionVisitante;
     private final Random random;
     Equipos equipoLocal, equipoVisitante;
     private InfoJugadores ventanaEquipos = null;
@@ -33,8 +34,8 @@ public class SimuladorFutbol extends JFrame {
     private int tarjetasRojasLocal, tarjetasRojasVisitante;
 
     public SimuladorFutbol() {
-        setTitle("Simulador de Futbol");
-        setSize(600, 450);
+        setTitle("Soccer Sim");
+        setSize(800, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -80,6 +81,29 @@ public class SimuladorFutbol extends JFrame {
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout());
 
+        // Botón regresar al inicio
+        JButton btnRegresar = new JButton("Regresar al Inicio");
+
+        btnRegresar.addActionListener(e -> {
+            if (timer != null && timer.isRunning()) {
+                timer.stop();
+            }
+            dispose();
+            new Inicio().setVisible(true);
+        });
+
+        panelBotones.add(btnRegresar);
+
+// Botón ir a apuestas
+        JButton btnApuestas = new JButton("Ir a Apuestas");
+
+        btnApuestas.addActionListener(e -> {
+            new VentanaApuestas().setVisible(true);
+        });
+
+        panelBotones.add(btnApuestas);
+
+
         botonIniciar = new JButton("Iniciar Partido");
         botonIniciar.addActionListener(new ActionListener() {
             @Override
@@ -89,7 +113,7 @@ public class SimuladorFutbol extends JFrame {
         });
         panelBotones.add(botonIniciar);
 
-        JButton btnVerEquipos = new JButton("Ver Equipos");
+        btnVerEquipos = new JButton("Ver Equipos");
 
         btnVerEquipos.addActionListener(e -> {
             JDialog.setDefaultLookAndFeelDecorated(true);
@@ -136,8 +160,9 @@ public class SimuladorFutbol extends JFrame {
     }
 
     public static void main(String[] args) {
-        SimuladorFutbol simulador = new SimuladorFutbol();
-        simulador.setVisible(true);
+        java.awt.EventQueue.invokeLater(() -> {
+            new Inicio().setVisible(true);
+        });
     }
 
     /**

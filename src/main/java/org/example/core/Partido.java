@@ -15,15 +15,15 @@ import java.util.*;
  */
 public class Partido {
     // ===== PROBABILIDADES DE EVENTOS =====
-    private static final double SAQUE_DE_BANDA = 12;
-    private static final double PROB_TIRO_LIBRE = 10;
-    private static final double PROB_TIRO_EQUINA = 5;
-    private static final double PROB_TIRO_A_PUERTA = 4;
-    private static final double PROB_TARJETA_AMARILLA = 4;
-    private static final double FUERA_DE_JUEGO = 3;
-    private static final double LESION = 2;
-    private static final double PROB_PENAL = 1;
-    private static final double PROB_TARJETA_ROJA = 1;
+    private static final double PROB_TIRO_A_PUERTA = 6.0;   // (antes 4)
+    private static final double SAQUE_DE_BANDA = 8.0;       // (antes 12)
+    private static final double PROB_TIRO_LIBRE = 3.0;      // (antes 10)
+    private static final double PROB_TIRO_EQUINA = 4.0;     // (antes 5).
+    private static final double FUERA_DE_JUEGO = 2.0;       // (antes 3).
+    private static final double PROB_TARJETA_AMARILLA = 1.5;// (antes 4).
+    private static final double LESION = 0.5;               // (antes 2). Una lesión cada 2 partidos aprox.
+    private static final double PROB_PENAL = 0.3;           // (antes 1).
+    private static final double PROB_TARJETA_ROJA = 0.1;    // (antes 1).
 
     private final Equipos equipoLocal;
     private final Equipos equipoVisitante;
@@ -50,7 +50,7 @@ public class Partido {
      * Obtiene el equipo local del partido.
      * @return Equipo local
      */
-    public Equipos getEquipoLocal() {
+     public Equipos getEquipoLocal() {
         return equipoLocal;
     }
 

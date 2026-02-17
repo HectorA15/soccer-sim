@@ -5,184 +5,179 @@ import org.example.entidades.Jugador;
 import java.util.Random;
 
 /**
- * Gestiona todos los eventos que pueden ocurrir durante un partido de fútbol.
- * Incluye: goles (tiros, penales, tiros libres, esquinas), tarjetas, lesiones y eventos de juego.
- * Cada metdo calcula probabilidades basadas en las estadísticas de los jugadores involucrados.
+ * Gestiona la resolución lógica de los eventos del partido.
+ * REFACTORIZADO: Ahora el portero tiene mucho más peso (Reflejos x3.5)
+ * y las probabilidades son más realistas para evitar marcadores excesivos.
  */
 public class Eventos {
 
-    Random random = new Random();
+    private final Random random = new Random();
 
-    /**
-     * Constructor por defecto de la clase Eventos.
-     */
-    public Eventos(){
+    // FACTOR DE DIFICULTAD DEL PORTERO
+    // Cuanto más alto, más difícil es meter gol.
+    // 1.0 = Igualdad total (50% gol). 3.5 = El portero tiene mucha ventaja.
+    private static final double PESO_PORTERO = 3.5;
+
+    public Eventos() {
     }
 
     // ===== EVENTOS DE GOL =====
 
     /**
-     * Simula un tiro a puerta.
-     * La probabilidad de gol depende del tiro del atacante vs los reflejos del portero.
-     * Si es gol, incrementa automáticamente el contador de goles del atacante.
-     * @param atacante Jugador que ejecuta el tiro
-     * @param portero Portero que intenta detener el tiro
-     * @return true si fue gol, false si el portero atajó
+     * Simula un tiro a puerta estándar.
+     * El portero usa sus reflejos multiplicados por el PESO_PORTERO.
      */
     public boolean tiroPuerta(Jugador atacante, Portero portero) {
-        double probabilidad = (double) atacante.getTiro() /
-                (atacante.getTiro() + portero.getReflejos()) * 100;
-        boolean esGol = random.nextDouble() * 100 < probabilidad;
-        if (esGol) {
-            atacante.marcarGol();
-        }
-        return esGol;
+
+        double potenciaTiro = atacante.getTiro() + (atacante.getVelocidad() * 0.2);
+
+        double resistenciaPortero = portero.getReflejos() * PESO_PORTERO;
+
+        // Probabilidad (Ej: 80 vs 280 -> 22% de gol)
+        double probabilidadGol = (potenciaTiro / (potenciaTiro + resistenciaPortero)) * 100;
+
+        // +/- 5% aleatorio
+        probabilidadGol += (random.nextInt(10) - 5);
+
+        return random.nextDouble() * 100 < probabilidadGol;
     }
 
     /**
-     * Simula un penal con tiro ajustado al 150%.
-     * La capacidad de tiro se multiplica por 1.5 para reflejar la ventaja del tirador.
-     * Si es gol, incrementa automáticamente el contador de goles del tirador.
-     * @param tirador Jugador que ejecuta el penal
-     * @param portero Portero que intenta detener el penal
-     * @return true si fue gol, false si el portero atajó
+     * Simula un penal.
+     * AQUÍ EL TIRADOR TIENE VENTAJA.
+     * El factor del portero se reduce porque el tiro es a quemarropa.
      */
     public boolean penal(Jugador tirador, Portero portero) {
-        double tiroAjustado = tirador.getTiro() * 1.5;
-        double probabilidad = tiroAjustado /
-                (tiroAjustado + portero.getReflejos()) * 100;
+        // En penal, el tiro vale x4
+        double potenciaTiro = tirador.getTiro() * 4.0;
 
-        boolean esGol = random.nextDouble() * 100 < probabilidad;
-        if (esGol) {
-            tirador.marcarGol();
-        }
-        return esGol;
+        // El portero tiene un menor multiplicador
+        double resistenciaPortero = portero.getReflejos() * 2.0;
+
+        double probabilidadGol = (potenciaTiro / (potenciaTiro + resistenciaPortero)) * 100;
+
+        // Capamos las probabilidades (max 90%, min 50%)
+        if (probabilidadGol > 90) probabilidadGol = 90;
+        if (probabilidadGol < 50) probabilidadGol = 50;
+
+        return random.nextDouble() * 100 < probabilidadGol;
     }
 
     /**
      * Simula un tiro libre.
-     * Si el jugador tiene más de 75 de tiro, dispara directamente.
-     * Si no, primero intenta un centro basado en su capacidad de pase.
-     * Si es gol, incrementa automáticamente el contador de goles del ejecutor.
-     * @param ejecutor Jugador que ejecuta el tiro libre
-     * @param portero Portero del equipo rival
-     * @return true si fue gol, false si no
+     * Si el tiro es muy bueno (>85), va directo a puerta.
+     * Si no, es un centro que depende del PASE.
      */
     public boolean tiroLibre(Jugador ejecutor, Portero portero) {
-        if (ejecutor.getTiro() > 75) {
-            return tiroPuerta(ejecutor, portero);
+        if (ejecutor.getTiro() > 85) {
+            // bono de +10 al tiro para tiros potentes
+            double potencia = ejecutor.getTiro() + 10;
+            double resistencia = portero.getReflejos() * PESO_PORTERO;
+            double prob = (potencia / (potencia + resistencia)) * 100;
+            return random.nextDouble() * 100 < prob;
         }
 
-        int probCentro = ejecutor.getPase();
-        boolean centroBueno = random.nextInt(100) < probCentro;
+        // Si el pase es malo, el portero lo atrapa fácil
+        int calidadCentro = ejecutor.getPase();
+        boolean centroBueno = random.nextInt(100) < calidadCentro;
 
-        if (!centroBueno) return false;
+        if (!centroBueno) return false; // El centro se fue fuera
 
+        // Si el centro es bueno, se resuelve como un tiro normal pero con menos potencia
         return tiroPuerta(ejecutor, portero);
     }
 
     /**
      * Simula un tiro de esquina.
-     * Primero se determina si el atacante gana el duelo físico con el defensor.
-     * Si gana el duelo, se ejecuta un tiro a puerta.
-     * Si es gol, incrementa automáticamente el contador de goles del atacante.
-     * @param atacante Jugador que remata el balón
-     * @param defensor Jugador que defiende
-     * @param portero Portero del equipo rival
-     * @return true si fue gol, false si no
+     * 1. El portero intenta cortar el pase (Salida vs Pase).
+     * 2. Si falla, hay duelo físico (Atacante vs Defensa).
+     * 3. Si gana atacante, remata de cabeza (Tiro vs Reflejos).
      */
     public boolean tiroEsquina(Jugador atacante, Jugador defensor, Portero portero) {
+
+        // Asumimos que "Saque" del portero también implica su capacidad de salir jugando
+        double capacidadSalida = (portero.getReflejos() + portero.getSaque()) / 2.0;
+        double calidadCentro = atacante.getPase();
+
+        // Si el portero es valiente, sale a cortar (50% de las veces intenta salir)
+        if (random.nextBoolean()) {
+            double probCortar = (capacidadSalida / (capacidadSalida + calidadCentro)) * 100;
+            if (random.nextDouble() * 100 < probCortar) {
+                return false; // El portero atrapó el centro en el aire
+            }
+        }
+
+        // Si el portero no salió o falló
+        // El atacante necesita ganar la posición
         int fuerzaAtacante = atacante.getFisico();
         int fuerzaDefensor = defensor.getFisico() + defensor.getDefensa();
 
-        double probabilidad = (double) fuerzaAtacante /
-                (fuerzaAtacante + fuerzaDefensor) * 100;
+        // El defensor tiene ventaja por posición (sumamos defensa)
+        double probGanarPosicion = (double) fuerzaAtacante / (fuerzaAtacante + fuerzaDefensor) * 100;
 
-        boolean ganaAtacante = random.nextDouble() * 100 < probabilidad;
+        if (random.nextDouble() * 100 > probGanarPosicion) {
+            return false; // Despejó el defensa
+        }
 
-        if (!ganaAtacante) return false;
+        // Los cabezazos son menos precisos que los tiros con el pie
+        double potenciaCabezazo = atacante.getTiro() * 0.7;
+        double resistenciaPortero = portero.getReflejos() * PESO_PORTERO;
 
-        return tiroPuerta(atacante, portero);
+        double probGol = (potenciaCabezazo / (potenciaCabezazo + resistenciaPortero)) * 100;
+
+        return random.nextDouble() * 100 < probGol;
     }
 
-    // ===== EVENTOS DE JUEGO =====
+    // ===== EVENTOS DE JUEGO  =====
 
-    /**
-     * Simula un saque de banda.
-     * La probabilidad de éxito depende del pase del ejecutor vs la defensa+velocidad del rival.
-     * @param ejecutor Jugador que saca de banda
-     * @param defensor Jugador que intenta interceptar
-     * @return true si el saque fue exitoso, false si el defensor lo interceptó
-     */
     public boolean saqueBanda(Jugador ejecutor, Jugador defensor) {
+        // El pase vs la intercepción (Defensa + Velocidad)
         int ataque = ejecutor.getPase();
-        int defensa = defensor.getDefensa() + defensor.getVelocidad();
+        // Reducimos un poco el peso de la defensa para que no roben siempre
+        double defensa = (defensor.getDefensa() * 0.7) + (defensor.getVelocidad() * 0.3);
 
-        double probabilidad = (double) ataque / (ataque + defensa) * 100;
-
+        double probabilidad = ataque / (ataque + defensa) * 100;
         return random.nextDouble() * 100 < probabilidad;
     }
 
-    /**
-     * Determina si hay fuera de juego.
-     * La probabilidad base es 10% y se ajusta según la diferencia de velocidad entre atacante y defensor.
-     * @param atacante Jugador en posible fuera de juego
-     * @param defensor Último defensor
-     * @return true si hay fuera de juego, false si no
-     */
     public boolean fueraDeJuego(Jugador atacante, Jugador defensor) {
-        int diferencia = atacante.getVelocidad() - defensor.getDefensa();
-        int probabilidad = 10 + diferencia / 5;
+        // Aquí la velocidad es CLAVE
+        int velocidadAtaque = atacante.getVelocidad();
+        int inteligenciaDefensa = defensor.getDefensa();
 
-        if (probabilidad < 5) probabilidad = 5;
-        if (probabilidad > 40) probabilidad = 40;
+        // Si el atacante es muy rápido, tiende a caer más en fuera de juego por ansioso
+        // O si el defensa es muy bueno, tira la línea del fuera de juego
 
-        return random.nextInt(100) < probabilidad;
-    }
+        double probOffside = 10;
 
-    // ===== TARJETAS =====
-
-    /**
-     * Determina si un jugador recibe tarjeta amarilla.
-     * Jugadores con menos capacidad defensiva tienen más probabilidad de ser amonestados.
-     * Si el jugador ya tiene una amarilla, recibe roja y es expulsado automáticamente.
-     * @param jugador Jugador que puede recibir tarjeta
-     * @return "EXPULSION" si fue la segunda amarilla, "AMARILLA" si es la primera, null si no hubo tarjeta
-     */
-    public String tarjetaAmarilla(Jugador jugador) {
-        double probabilidad = (100 - jugador.getDefensa()) / 8.0;
-
-        boolean hayTarjeta = random.nextDouble() * 100 < probabilidad;
-
-        if (hayTarjeta) {
-            boolean expulsado = jugador.agregarTarjetaAmarilla();
-            return expulsado ? "EXPULSION" : "AMARILLA";
+        if (velocidadAtaque > inteligenciaDefensa) {
+            probOffside += 15; // Es rápido pero se adelanta
         }
 
+        return random.nextInt(100) < probOffside;
+    }
+
+    // ===== TARJETAS Y LESIONES =====
+
+    public String tarjetaAmarilla(Jugador jugador) {
+        // Los jugadores con poca defensa suelen hacer faltas
+        // Probabilidad base baja (20% de que la falta sea de tarjeta)
+        double probabilidad = (100 - jugador.getDefensa()) / 20.0;
+
+        if (random.nextDouble() * 100 < probabilidad) {
+            return jugador.agregarTarjetaAmarilla() ? "EXPULSION" : "AMARILLA";
+        }
         return null;
     }
 
-    /**
-     * Muestra tarjeta roja directa al jugador y lo expulsa del partido.
-     * @param jugador Jugador que recibe la tarjeta roja
-     * @return siempre true (siempre hay expulsión con roja directa)
-     */
     public boolean tarjetaRoja(Jugador jugador) {
         jugador.agregarTarjetaRoja();
         return true;
     }
 
-    // ===== LESIONES =====
-
-    /**
-     * Determina si un jugador sufre una lesión.
-     * Jugadores con menos resistencia física tienen mayor probabilidad de lesionarse.
-     * @param jugador Jugador que puede lesionarse
-     * @return true si se lesiona, false si no
-     */
     public boolean lesion(Jugador jugador) {
-        double probabilidad = (100 - jugador.getFisico()) / 10.0;
-
+        // Jugadores con poco físico mas facil que se lesionen
+        double probabilidad = (100 - jugador.getFisico()) / 25.0; // Dividido por 25 para que sea raro
         return random.nextDouble() * 100 < probabilidad;
     }
 }
