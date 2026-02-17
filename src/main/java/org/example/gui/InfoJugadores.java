@@ -210,6 +210,9 @@ public class InfoJugadores extends JFrame {
             modeloSuplentesVisitante.setValueAt(suplentesVisitante[i].getTarjetasAmarillas(), i, 3);
             modeloSuplentesVisitante.setValueAt(suplentesVisitante[i].getTarjetasRojas(), i, 4);
         }
+
+        lblStatsPoderLocal.setText(formatPoder(equipoLocal));
+        lblStatsPoderVisitante.setText(formatPoder(equipoVisitante));
     }
 
     private String formatPoder(Equipos equipo) {
