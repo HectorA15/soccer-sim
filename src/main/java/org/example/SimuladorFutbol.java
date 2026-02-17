@@ -4,19 +4,19 @@ import org.example.core.Partido;
 import org.example.entidades.Equipos;
 import org.example.entidades.Formacion;
 import org.example.nombres.EquiposNombres;
+import org.example.util.GestorMercado;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 
 /**
  * Ventana principal del simulador de futbol.
- * Permite seleccionar equipos, formaciones e iniciar la simulacion del partido.
+ * REFACTORIZADA: Integra GestorMercado y separa la lógica de UI en métodos privados.
  */
 public class SimuladorFutbol extends JFrame {
 
+    // Componentes de UI
     private JTextArea areaTexto;
     private JButton botonIniciar;
     private JButton btnVerEquipos;
@@ -24,246 +24,233 @@ public class SimuladorFutbol extends JFrame {
     private JComboBox<String> comboVisitante;
     private JComboBox<String> comboFormacionLocal;
     private JComboBox<String> comboFormacionVisitante;
+
+    // Etiquetas para mostrar las cuotas en vivo
+    private JLabel lblCuotaLocal;
+    private JLabel lblCuotaEmpate;
+    private JLabel lblCuotaVisita;
+
+    // Lógica del Juego
     private final Random random;
-    Equipos equipoLocal, equipoVisitante;
+    private Equipos equipoLocal;
+    private Equipos equipoVisitante;
+    private Partido partido;
+    private GestorMercado mercado; // Nuestro "Corredor de Apuestas"
     private InfoJugadores ventanaEquipos = null;
     private Timer timer;
+
+    // Estado del Partido
     private int minuto;
     private int golesLocal, golesVisitante;
-    private int tarjetasAmarillasLocal, tarjetasAmarillasVisitante;
-    private int tarjetasRojasLocal, tarjetasRojasVisitante;
 
     public SimuladorFutbol() {
-        setTitle("Soccer Sim");
-        setSize(800, 650);
+        setTitle("Soccer Sim - Simulador Profesional");
+        setSize(900, 700); // Un poco más grande para que quepan las cuotas
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        random = new Random();
+
+        // 1. Inicializar toda la interfaz gráfica
+        inicializarComponentes();
+
+        // 2. Configurar las acciones de los botones
+        configurarListeners();
+    }
+
+    /**
+     * Configura paneles, botones y combos. Mantiene el constructor limpio.
+     */
+    private void inicializarComponentes() {
         String[] equipos = EquiposNombres.getEquipos();
         String[] formaciones = {"4-4-2", "4-3-3", "3-5-2", "5-3-2", "3-4-3", "4-5-1"};
 
-        // Panel superior con seleccion de equipos y formaciones
-        JPanel panelEquipos = new JPanel();
-        panelEquipos.setLayout(new GridLayout(4, 2, 5, 5));
-        panelEquipos.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // --- PANEL SUPERIOR (Selección) ---
+        JPanel panelEquipos = new JPanel(new GridLayout(4, 2, 5, 5));
+        panelEquipos.setBorder(BorderFactory.createTitledBorder("Configuración del Partido"));
 
-        JLabel labelLocal = new JLabel("Equipo Local:");
+        panelEquipos.add(new JLabel("Equipo Local:"));
         comboLocal = new JComboBox<>(equipos);
-
-        JLabel labelFormacionLocal = new JLabel("Formacion Local:");
-        comboFormacionLocal = new JComboBox<>(formaciones);
-
-        JLabel labelVisitante = new JLabel("Equipo Visitante:");
-        comboVisitante = new JComboBox<>(equipos);
-        comboVisitante.setSelectedIndex(1); // Seleccionar un equipo diferente por defecto
-
-        JLabel labelFormacionVisitante = new JLabel("Formacion Visitante:");
-        comboFormacionVisitante = new JComboBox<>(formaciones);
-
-        panelEquipos.add(labelLocal);
         panelEquipos.add(comboLocal);
-        panelEquipos.add(labelFormacionLocal);
+
+        panelEquipos.add(new JLabel("Formación Local:"));
+        comboFormacionLocal = new JComboBox<>(formaciones);
         panelEquipos.add(comboFormacionLocal);
-        panelEquipos.add(labelVisitante);
+
+        panelEquipos.add(new JLabel("Equipo Visitante:"));
+        comboVisitante = new JComboBox<>(equipos);
+        comboVisitante.setSelectedIndex(1);
         panelEquipos.add(comboVisitante);
-        panelEquipos.add(labelFormacionVisitante);
+
+        panelEquipos.add(new JLabel("Formación Visitante:"));
+        comboFormacionVisitante = new JComboBox<>(formaciones);
         panelEquipos.add(comboFormacionVisitante);
 
         add(panelEquipos, BorderLayout.NORTH);
 
-        // Area de texto para eventos
+        // --- AREA CENTRAL (Log del partido) ---
         areaTexto = new JTextArea();
         areaTexto.setEditable(false);
+        areaTexto.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollPane = new JScrollPane(areaTexto);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Panel de botones
-        JPanel panelBotones = new JPanel();
-        panelBotones.setLayout(new FlowLayout());
+        // --- PANEL INFERIOR (Botones y Cuotas) ---
+        JPanel panelInferior = new JPanel(new BorderLayout());
 
-        // Botón regresar al inicio
+        // Sub-panel de Cuotas (Nuevo)
+        JPanel panelCuotas = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelCuotas.setBorder(BorderFactory.createTitledBorder("Mercado de Apuestas en Vivo"));
+        panelCuotas.setBackground(new Color(240, 248, 255));
+
+        lblCuotaLocal = new JLabel("Local: -");
+        lblCuotaEmpate = new JLabel("Empate: -");
+        lblCuotaVisita = new JLabel("Visita: -");
+
+        // Estilo a las cuotas
+        Font fontCuotas = new Font("Arial", Font.BOLD, 14);
+        lblCuotaLocal.setFont(fontCuotas);
+        lblCuotaEmpate.setFont(fontCuotas);
+        lblCuotaVisita.setFont(fontCuotas);
+        lblCuotaLocal.setForeground(new Color(0, 100, 0)); // Verde oscuro
+
+        panelCuotas.add(lblCuotaLocal);
+        panelCuotas.add(lblCuotaEmpate);
+        panelCuotas.add(lblCuotaVisita);
+
+        panelInferior.add(panelCuotas, BorderLayout.NORTH);
+
+        // Sub-panel de Botones
+        JPanel panelBotones = new JPanel(new FlowLayout());
+
         JButton btnRegresar = new JButton("Regresar al Inicio");
-
         btnRegresar.addActionListener(e -> {
-            if (timer != null && timer.isRunning()) {
-                timer.stop();
-            }
+            if (timer != null && timer.isRunning()) timer.stop();
             dispose();
             new Inicio().setVisible(true);
         });
-
         panelBotones.add(btnRegresar);
 
-// Botón ir a apuestas
         JButton btnApuestas = new JButton("Ir a Apuestas");
-
-        btnApuestas.addActionListener(e -> {
-            new VentanaApuestas().setVisible(true);
-        });
-
+        btnApuestas.addActionListener(e -> new VentanaApuestas().setVisible(true));
         panelBotones.add(btnApuestas);
 
-
         botonIniciar = new JButton("Iniciar Partido");
-        botonIniciar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                iniciarPartido();
-            }
-        });
+        botonIniciar.setFont(new Font("Arial", Font.BOLD, 12));
         panelBotones.add(botonIniciar);
 
         btnVerEquipos = new JButton("Ver Equipos");
-
-        btnVerEquipos.addActionListener(e -> {
-            JDialog.setDefaultLookAndFeelDecorated(true);
-            if (equipoLocal != null && equipoVisitante != null) {
-
-                if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
-                    ventanaEquipos.toFront();
-                    ventanaEquipos.requestFocus();
-                    return;
-                }
-
-                ventanaEquipos = new InfoJugadores( equipoLocal, equipoVisitante );
-
-                Point ubicacion = SimuladorFutbol.this.getLocation();
-                int anchoVentanaPrincipal = SimuladorFutbol.this.getWidth();
-                ventanaEquipos.setLocation(
-                        ubicacion.x + anchoVentanaPrincipal + 10,
-                        ubicacion.y
-                );
-
-                ventanaEquipos.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosed(java.awt.event.WindowEvent e) {
-                        ventanaEquipos = null;
-                    }
-                });
-
-                ventanaEquipos.setVisible(true);
-
-            } else {
-                JOptionPane.showMessageDialog(
-                        SimuladorFutbol.this,
-                        "Primero debes iniciar un partido para ver los equipos",
-                        "Equipos no disponibles",
-                        JOptionPane.WARNING_MESSAGE
-                );
-            }
-        });
         panelBotones.add(btnVerEquipos);
 
-        add(panelBotones, BorderLayout.SOUTH);
+        panelInferior.add(panelBotones, BorderLayout.SOUTH);
 
-        random = new Random();
+        add(panelInferior, BorderLayout.SOUTH);
     }
 
-    public static void main(String[] args) {
-        java.awt.EventQueue.invokeLater(() -> {
-            new Inicio().setVisible(true);
-        });
+    private void configurarListeners() {
+        botonIniciar.addActionListener(e -> iniciarPartido());
+
+        btnVerEquipos.addActionListener(e -> mostrarVentanaEquipos());
     }
 
     /**
-     * Inicializa y comienza la simulacion del partido.
-     * Crea los equipos, asigna formaciones y configura el timer para simular minuto a minuto.
+     * Inicializa la lógica del partido, equipos y el timer.
      */
     private void iniciarPartido() {
-        String strEquipoLocal = (String) comboLocal.getSelectedItem();
-        String strEquipoVisitante = (String) comboVisitante.getSelectedItem();
+        // 1. Configurar Equipos
+        equipoLocal = new Equipos((String) comboLocal.getSelectedItem());
+        equipoVisitante = new Equipos((String) comboVisitante.getSelectedItem());
 
-        // Crear equipos
-        equipoLocal = new Equipos(strEquipoLocal);
-        equipoVisitante = new Equipos(strEquipoVisitante);
-
-        // Obtener formaciones seleccionadas
-        String formacionLocalStr = (String) comboFormacionLocal.getSelectedItem();
-        String formacionVisitanteStr = (String) comboFormacionVisitante.getSelectedItem();
-
-        // Parsear formaciones (formato "4-4-2")
-        Formacion formacionLocal = parsearFormacion(formacionLocalStr);
-        Formacion formacionVisitante = parsearFormacion(formacionVisitanteStr);
-
-        // Asignar formaciones
-        equipoLocal.setFormacion(formacionLocal);
-        equipoVisitante.setFormacion(formacionVisitante);
+        equipoLocal.setFormacion(parsearFormacion((String) comboFormacionLocal.getSelectedItem()));
+        equipoVisitante.setFormacion(parsearFormacion((String) comboFormacionVisitante.getSelectedItem()));
 
         equipoLocal.asignarPosiciones();
         equipoVisitante.asignarPosiciones();
 
-        // Crear partido
-        Partido partido = new Partido(equipoLocal, equipoVisitante);
+        // 2. Iniciar Motores (Partido y Mercado)
+        partido = new Partido(equipoLocal, equipoVisitante);
+        mercado = new GestorMercado();
 
-        areaTexto.setText("Inicia el partido entre " + equipoLocal.getNombre() +
-                " (" + formacionLocalStr + ") y " + equipoVisitante.getNombre() +
-                " (" + formacionVisitanteStr + ")...\n");
+        // 3. Resetear UI
+        areaTexto.setText("=== INICIO DEL PARTIDO ===\n");
+        areaTexto.append(equipoLocal.getNombre() + " vs " + equipoVisitante.getNombre() + "\n\n");
         minuto = 0;
         golesLocal = 0;
         golesVisitante = 0;
         botonIniciar.setEnabled(false);
 
-        // Timer para simular minuto a minuto
-        timer = new Timer(1000, e -> {
-            String evento = partido.procesarMinuto(minuto, equipoLocal, equipoVisitante);
-            System.out.println(evento);
-            areaTexto.append(evento + "\n");
-
-            if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
-                ventanaEquipos.actualizarTablas();
-            }
-
-            minuto++;
-
-            if (minuto == 90) {
-                timer.stop();
-                areaTexto.append("\nFinal del partido!\n");
-
-                String nombreLocal = equipoLocal.getNombre();
-                String nombreVisitante = equipoVisitante.getNombre();
-                golesLocal = equipoLocal.getGoles();
-                golesVisitante = equipoVisitante.getGoles();
-                tarjetasAmarillasLocal = equipoLocal.getTarjetasAmarillas();
-                tarjetasAmarillasVisitante = equipoVisitante.getTarjetasAmarillas();
-                tarjetasRojasLocal = equipoLocal.getTarjetasRojas();
-                tarjetasRojasVisitante = equipoVisitante.getTarjetasRojas();
-
-                areaTexto.append("Resultado Final: " + nombreLocal + " " + golesLocal +
-                        " - " + golesVisitante + " " + nombreVisitante + "\n");
-                areaTexto.append("Tarjetas amarillas - " + nombreLocal + ": " + tarjetasAmarillasLocal +
-                        ", " + nombreVisitante + ": " + tarjetasAmarillasVisitante + "\n");
-                areaTexto.append("Tarjetas rojas - " + nombreLocal + ": " + tarjetasRojasLocal +
-                        ", " + nombreVisitante + ": " + tarjetasRojasVisitante + "\n");
-
-                if (golesLocal > golesVisitante) {
-                    areaTexto.append(nombreLocal + " gana el partido!\n");
-                } else if (golesLocal < golesVisitante) {
-                    areaTexto.append(nombreVisitante + " gana el partido!\n");
-                } else {
-                    areaTexto.append("El partido termina en empate.\n");
-                }
-
-                if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
-                    ventanaEquipos.actualizarTablas();
-                }
-
-                botonIniciar.setEnabled(true);
-            }
-        });
+        // 4. Configurar Timer (Bucle del juego)
+        timer = new Timer(1000, e -> procesarMinuto());
         timer.start();
     }
 
     /**
-     * Convierte un string de formacion (ej: "4-4-2") en un objeto Formacion.
-     *
-     * @param formacionStr String con formato "D-M-A" (defensas-mediocampistas-delanteros)
-     * @return Objeto Formacion
+     * Lógica que se ejecuta cada "minuto" (segundo) del partido.
      */
+    private void procesarMinuto() {
+        // A. Procesar evento de fútbol
+        String evento = partido.procesarMinuto(minuto, equipoLocal, equipoVisitante);
+        System.out.println(evento);
+        areaTexto.append(evento + "\n");
+
+        // Actualizar marcadores locales (por si hubo gol)
+        golesLocal = equipoLocal.getGoles();
+        golesVisitante = equipoVisitante.getGoles();
+
+        // B. Actualizar Mercado de Apuestas
+        mercado.actualizarCuotas(minuto, golesLocal, golesVisitante, equipoLocal, equipoVisitante);
+
+        // C. Reflejar Cuotas en la UI
+        lblCuotaLocal.setText("Local: " + mercado.getCuotaLocal());
+        lblCuotaEmpate.setText("Empate: " + mercado.getCuotaEmpate());
+        lblCuotaVisita.setText("Visita: " + mercado.getCuotaVisitante());
+
+        // D. Actualizar tablas de jugadores si están abiertas
+        if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
+            ventanaEquipos.actualizarTablas();
+        }
+
+        minuto++;
+
+        // E. Verificar Fin del Partido
+        if (minuto > 90) {
+            finalizarPartido();
+        }
+    }
+
+    private void finalizarPartido() {
+        timer.stop();
+        areaTexto.append("\n=== FINAL DEL PARTIDO ===\n");
+        areaTexto.append("Marcador Final: " + equipoLocal.getNombre() + " " + golesLocal + " - " + golesVisitante + " " + equipoVisitante.getNombre() + "\n");
+
+        // Mostrar ganador
+        if (golesLocal > golesVisitante) areaTexto.append("Ganador: " + equipoLocal.getNombre() + "\n");
+        else if (golesLocal < golesVisitante) areaTexto.append("Ganador: " + equipoVisitante.getNombre() + "\n");
+        else areaTexto.append("Resultado: EMPATE\n");
+
+        botonIniciar.setEnabled(true);
+    }
+
+    private void mostrarVentanaEquipos() {
+        if (equipoLocal != null && equipoVisitante != null) {
+            if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
+                ventanaEquipos.toFront();
+                return;
+            }
+            ventanaEquipos = new InfoJugadores(equipoLocal, equipoVisitante);
+            ventanaEquipos.setLocationRelativeTo(this);
+            ventanaEquipos.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Primero inicia un partido.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
     private Formacion parsearFormacion(String formacionStr) {
         String[] partes = formacionStr.split("-");
-        int defensas = Integer.parseInt(partes[0]);
-        int mediocampistas = Integer.parseInt(partes[1]);
-        int delanteros = Integer.parseInt(partes[2]);
-        return new Formacion(defensas, mediocampistas, delanteros);
+        return new Formacion(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]), Integer.parseInt(partes[2]));
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Inicio().setVisible(true));
     }
 }

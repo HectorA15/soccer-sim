@@ -9,7 +9,7 @@ public class VentanaApuestas extends JFrame {
         setTitle("Soccer Sim - Apuestas");
         setSize(650, 450);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         JLabel mensaje = new JLabel(
