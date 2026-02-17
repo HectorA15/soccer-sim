@@ -22,7 +22,7 @@ public class VentanaApuestas extends JFrame {
 
 
 
-        JPanel panelInferior = new JPanel();;
+        JPanel panelInferior = new JPanel();
 
         add(panelInferior, BorderLayout.SOUTH);
     }
