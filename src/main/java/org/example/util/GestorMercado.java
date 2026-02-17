@@ -65,10 +65,10 @@ public class GestorMercado {
             }
         }
 
-        // Usamos Math.max para evitar división por cero si la probabilidad es 0
-        this.cuotaLocal = 1.0 / Math.max(sumaVictoriaLocal, 0.0001);
-        this.cuotaEmpate = 1.0 / Math.max(sumaEmpate, 0.0001);
-        this.cuotaVisitante = 1.0 / Math.max(sumaVictoriaVisita, 0.0001);
+        double margen = 0.90; // El casino se queda con el 10%
+        this.cuotaLocal = margen / Math.max(sumaVictoriaLocal, 0.0001);
+        this.cuotaEmpate = margen / Math.max(sumaEmpate, 0.0001);
+        this.cuotaVisitante = margen / Math.max(sumaVictoriaVisita, 0.0001);
     }
 
     /**

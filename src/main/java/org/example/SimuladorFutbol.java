@@ -51,13 +51,14 @@ public class SimuladorFutbol extends JFrame {
         setSize(900, 700); // Un poco más grande para que quepan las cuotas
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        JDialog.setDefaultLookAndFeelDecorated(true);
 
         random = new Random();
 
-        // 1. Inicializar toda la interfaz gráfica
+        // Inicializar toda la interfaz gráfica
         inicializarComponentes();
 
-        // 2. Configurar las acciones de los botones
+        // Configurar las acciones de los botones
         configurarListeners();
     }
 
@@ -127,12 +128,14 @@ public class SimuladorFutbol extends JFrame {
         // --- AREA CENTRAL (Log del partido) ---
         areaTexto = new JTextArea();
         areaTexto.setEditable(false);
-        areaTexto.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        areaTexto.setFont(new Font("Monospaced", Font.PLAIN, 18));
+        areaTexto.setMargin(new Insets(10, 10, 10, 10));
         JScrollPane scrollPane = new JScrollPane(areaTexto);
         add(scrollPane, BorderLayout.CENTER);
 
         // --- PANEL INFERIOR (Botones y Cuotas) ---
         JPanel panelInferior = new JPanel(new BorderLayout());
+        panelInferior.setBorder(BorderFactory.createEmptyBorder( 0, 10, 10, 10)); // 10px en todos lados
 
         // Sub-panel de Cuotas (Nuevo)
         JPanel panelCuotas = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
@@ -157,7 +160,11 @@ public class SimuladorFutbol extends JFrame {
         panelInferior.add(panelCuotas, BorderLayout.NORTH);
 
         // Sub-panel de Botones
-        JPanel panelBotones = new JPanel(new FlowLayout());
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
+
+        Font fontBotones = new Font("Arial", Font.BOLD, 14);
+        Color colorFondo = new Color(240, 248, 255);
 
         JButton btnRegresar = new JButton("Regresar al Inicio");
         btnRegresar.addActionListener(e -> {
@@ -165,18 +172,35 @@ public class SimuladorFutbol extends JFrame {
             dispose();
             new Inicio().setVisible(true);
         });
-        panelBotones.add(btnRegresar);
 
         JButton btnApuestas = new JButton("Ir a Apuestas");
-        btnApuestas.addActionListener(e -> new VentanaApuestas().setVisible(true));
-        panelBotones.add(btnApuestas);
+        btnApuestas.addActionListener(e -> {
+            if (mercado != null) {
+                new VentanaApuestas(mercado).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Inicia el partido para ver las cuotas");
+            }
+        });
+
 
         botonIniciar = new JButton("Iniciar Partido");
-        botonIniciar.setFont(new Font("Arial", Font.BOLD, 12));
-        panelBotones.add(botonIniciar);
-
         btnVerEquipos = new JButton("Ver Equipos");
+
+        for (JButton btn : new JButton[]{btnRegresar, btnApuestas, botonIniciar, btnVerEquipos}) {
+            btn.setFont(fontBotones);
+            btn.setBackground(colorFondo);
+            btn.setFocusPainted(false);
+        }
+
+        panelBotones.add(Box.createHorizontalStrut(10)); // Espacio fijo
+        panelBotones.add(btnRegresar);
+        panelBotones.add(Box.createHorizontalGlue()); // Espacio flexible
+        panelBotones.add(botonIniciar);
+        panelBotones.add(Box.createHorizontalStrut(10)); // Espacio fijo
         panelBotones.add(btnVerEquipos);
+        panelBotones.add(Box.createHorizontalGlue()); // Espacio flexible
+        panelBotones.add(btnApuestas);
+        panelBotones.add(Box.createHorizontalStrut(10)); // Espacio fijo
 
         panelInferior.add(panelBotones, BorderLayout.SOUTH);
 
@@ -228,6 +252,8 @@ public class SimuladorFutbol extends JFrame {
      * Lógica que se ejecuta cada "minuto" (segundo) del partido.
      */
     private void procesarMinuto() {
+
+
         // A. Procesar evento de fútbol
         String evento = partido.procesarMinuto(minuto, equipoLocal, equipoVisitante);
         System.out.println(evento);
@@ -245,9 +271,17 @@ public class SimuladorFutbol extends JFrame {
         mercado.actualizarCuotas(minuto, golesLocal, golesVisitante, equipoLocal, equipoVisitante);
 
         // C. Reflejar Cuotas en la UI
-        lblCuotaLocal.setText("Local: " + mercado.getCuotaLocal());
-        lblCuotaEmpate.setText("Empate: " + mercado.getCuotaEmpate());
-        lblCuotaVisita.setText("Visita: " + mercado.getCuotaVisitante());
+        if(minuto  > 85) {
+            lblCuotaLocal.setText("Local: MERCADO CERRADO");
+            lblCuotaEmpate.setText("Empate: MERCADO CERRADO");
+            lblCuotaVisita.setText("Visita: MERCADO CERRADO");
+        } else {
+            lblCuotaLocal.setText("Local: " + mercado.getCuotaLocal());
+            lblCuotaEmpate.setText("Empate: " + mercado.getCuotaEmpate());
+            lblCuotaVisita.setText("Visita: " + mercado.getCuotaVisitante());
+        }
+
+
 
         // D. Actualizar tablas de jugadores si están abiertas
         if (ventanaEquipos != null && ventanaEquipos.isVisible()) {
@@ -259,6 +293,8 @@ public class SimuladorFutbol extends JFrame {
         // E. Verificar Fin del Partido
         if (minuto > 90) {
             finalizarPartido();
+
+
         }
     }
 
