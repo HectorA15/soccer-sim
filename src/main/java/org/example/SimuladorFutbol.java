@@ -29,6 +29,9 @@ public class SimuladorFutbol extends JFrame {
     private JLabel lblCuotaLocal;
     private JLabel lblCuotaEmpate;
     private JLabel lblCuotaVisita;
+    private JLabel lblGolesLocal;
+    private JLabel lblGolesVisitante;
+    private JLabel lblVs;
 
     // Lógica del Juego
     private final Random random;
@@ -66,6 +69,11 @@ public class SimuladorFutbol extends JFrame {
         String[] formaciones = {"4-4-2", "4-3-3", "3-5-2", "5-3-2", "3-4-3", "4-5-1"};
 
         // --- PANEL SUPERIOR (Selección) ---
+        JPanel panelSuperior = new JPanel(new BorderLayout());
+        JLabel titulo = new JLabel("SOCCER SIM", SwingConstants.CENTER);
+        titulo.setFont(new Font("Impact", Font.BOLD, 36));
+        titulo.setForeground(new Color(34, 139, 34));
+
         JPanel panelEquipos = new JPanel(new GridLayout(4, 2, 5, 5));
         panelEquipos.setBorder(BorderFactory.createTitledBorder("Configuración del Partido"));
 
@@ -86,7 +94,35 @@ public class SimuladorFutbol extends JFrame {
         comboFormacionVisitante = new JComboBox<>(formaciones);
         panelEquipos.add(comboFormacionVisitante);
 
-        add(panelEquipos, BorderLayout.NORTH);
+        panelSuperior.add(panelEquipos, BorderLayout.NORTH);
+
+
+        // --- AREA CENTRAL SUPERIOR (goles) ---
+        JPanel panelGoles = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelGoles.setBorder(BorderFactory.createTitledBorder("Marcador Actual"));
+        panelGoles.setBackground(new Color(240, 248, 255));
+
+        lblGolesLocal = new JLabel("0");
+        JLabel lblVs = new JLabel("- VS -");
+        lblGolesVisitante = new JLabel("0");
+
+        Font fontGoles = new Font("Impact", Font.PLAIN, 28);
+        lblGolesLocal.setFont(fontGoles);
+        lblGolesLocal.setForeground(new Color(0, 100, 0)); // Verde
+
+        lblGolesVisitante.setFont(fontGoles);
+        lblGolesVisitante.setForeground(new Color(0, 0, 100)); // Azul
+
+        lblVs.setFont(new Font("Arial", Font.BOLD, 14));
+
+        panelGoles.add(lblGolesLocal);
+        panelGoles.add(lblVs);
+        panelGoles.add(lblGolesVisitante);
+
+        panelSuperior.add(panelEquipos, BorderLayout.NORTH);
+        panelSuperior.add(panelGoles, BorderLayout.SOUTH);
+
+        add(panelSuperior, BorderLayout.NORTH);
 
         // --- AREA CENTRAL (Log del partido) ---
         areaTexto = new JTextArea();
@@ -100,7 +136,7 @@ public class SimuladorFutbol extends JFrame {
 
         // Sub-panel de Cuotas (Nuevo)
         JPanel panelCuotas = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
-        panelCuotas.setBorder(BorderFactory.createTitledBorder("Mercado de Apuestas en Vivo"));
+        panelCuotas.setBorder(BorderFactory.createTitledBorder("Mercado en Vivo"));
         panelCuotas.setBackground(new Color(240, 248, 255));
 
         lblCuotaLocal = new JLabel("Local: -");
@@ -177,6 +213,10 @@ public class SimuladorFutbol extends JFrame {
         minuto = 0;
         golesLocal = 0;
         golesVisitante = 0;
+
+        lblGolesLocal.setText("0");
+        lblGolesVisitante.setText("0");
+
         botonIniciar.setEnabled(false);
 
         // 4. Configurar Timer (Bucle del juego)
@@ -196,6 +236,10 @@ public class SimuladorFutbol extends JFrame {
         // Actualizar marcadores locales (por si hubo gol)
         golesLocal = equipoLocal.getGoles();
         golesVisitante = equipoVisitante.getGoles();
+
+        lblGolesLocal.setText(equipoLocal.getNombre() + ": " + golesLocal);
+
+        lblGolesVisitante.setText(golesVisitante + " : " + equipoVisitante.getNombre());
 
         // B. Actualizar Mercado de Apuestas
         mercado.actualizarCuotas(minuto, golesLocal, golesVisitante, equipoLocal, equipoVisitante);

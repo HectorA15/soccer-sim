@@ -9,39 +9,53 @@ public class Inicio extends JFrame {
 
     public Inicio() {
         setTitle("Soccer Sim");
-        setSize(700, 530);
+        setSize(600, 500);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Titulo principal de la ventana del inicio
-        JLabel titulo = new JLabel("SOCCER SIM", SwingConstants.CENTER);
-        titulo.setFont(new Font("Impact", Font.BOLD, 50));
-        titulo.setForeground(new Color(34, 139, 34));
-        add(titulo, BorderLayout.NORTH);
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setBackground(new Color(25, 42, 86)); // azul oscuro color
+        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
 
-        JPanel panelBotones = new JPanel();
-        panelBotones.setLayout(new GridLayout(3, 1, 20, 20));
-        panelBotones.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+        JLabel lblTitulo = new JLabel("SOCCER SIM"); //titulo con font y color
+        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 48));
+        lblTitulo.setForeground(Color.WHITE);
 
-        JButton btnEntrar = new JButton("Entrar");
-        JButton btnSalir = new JButton("Salir");
+        panelPrincipal.add(Box.createVerticalStrut(80));
+        panelPrincipal.add(lblTitulo);
+        panelPrincipal.add(Box.createVerticalStrut(60));
 
-        panelBotones.add(btnEntrar);
-        panelBotones.add(btnSalir);
+        JButton btnEntrar = new JButton("Iniciar Juego");
+        btnEntrar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnEntrar.setFocusPainted(false);
+        btnEntrar.setBackground(new Color(36, 165, 91)); // verde color
+        btnEntrar.setForeground(Color.WHITE);
+        btnEntrar.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btnEntrar.setMaximumSize(new Dimension(200, 50));
 
-        add(panelBotones, BorderLayout.CENTER);
-
-
-        btnEntrar.addActionListener((ActionEvent e) -> {
-            dispose(); // cierra la ventana del inicio
-
+        btnEntrar.addActionListener(e -> {
             new SimuladorFutbol().setVisible(true);
+            dispose();
         });
 
+        panelPrincipal.add(btnEntrar);
+        panelPrincipal.add(Box.createVerticalStrut(20));
 
-        btnSalir.addActionListener((ActionEvent e) -> {
-            System.exit(0);
-        });
+
+        JButton btnSalir = new JButton("Salir");
+        btnSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnSalir.setFocusPainted(false);
+        btnSalir.setBackground(new Color(231, 76, 60)); // rojo color
+        btnSalir.setForeground(Color.WHITE);
+        btnSalir.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btnSalir.setMaximumSize(new Dimension(200, 45));
+
+        btnSalir.addActionListener(e -> System.exit(0));
+
+        panelPrincipal.add(btnSalir);
+
+        add(panelPrincipal, BorderLayout.CENTER);
     }
 }

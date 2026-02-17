@@ -7,7 +7,7 @@ public class VentanaApuestas extends JFrame {
 
     public VentanaApuestas() {
         setTitle("Soccer Sim - Apuestas");
-        setSize(650, 450);
+        setSize(500, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
