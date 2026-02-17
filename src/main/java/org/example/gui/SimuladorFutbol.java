@@ -1,4 +1,4 @@
-package org.example;
+package org.example.gui;
 
 import org.example.core.Partido;
 import org.example.entidades.Equipos;
@@ -341,7 +341,4 @@ public class SimuladorFutbol extends JFrame {
         return new Formacion(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]), Integer.parseInt(partes[2]));
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Inicio().setVisible(true));
-    }
 }

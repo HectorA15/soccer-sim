@@ -1,4 +1,4 @@
-package org.example;
+package org.example.gui;
 
 import org.example.util.GestorMercado;
 import javax.swing.*;

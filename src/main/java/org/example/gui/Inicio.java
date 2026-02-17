@@ -1,9 +1,8 @@
-package org.example;
+package org.example.gui;
 //la clase que inicia el programa con una ventana de inicio
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 
 public class Inicio extends JFrame {
 
