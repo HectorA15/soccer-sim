@@ -16,6 +16,9 @@ public class InfoJugadores extends JFrame {
     private JTable tablaSuplentesLocal;
     private JTable tablaSuplentesVisitante;
 
+    private JLabel lblStatsPoderLocal;
+    private JLabel lblStatsPoderVisitante;
+
     public InfoJugadores(Equipos local, Equipos visitante) {
         this.equipoLocal = local;
         this.equipoVisitante = visitante;
@@ -40,6 +43,12 @@ public class InfoJugadores extends JFrame {
         JLabel formacionLocal = new JLabel(local.getFormacion().toString());
         formacionLocal.setFont(new Font("Arial", Font.BOLD, 40));
         formacionLocal.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        lblStatsPoderLocal = new JLabel(formatPoder(local));
+        lblStatsPoderLocal.setFont(new Font("Arial", Font.ITALIC, 16));
+        lblStatsPoderLocal.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelLocal.add(lblStatsPoderLocal);
+
         panelLocal.add(formacionLocal);
         panelLocal.add(Box.createVerticalStrut(20));
 
@@ -72,6 +81,12 @@ public class InfoJugadores extends JFrame {
         JLabel formacionVisitante = new JLabel(visitante.getFormacion().toString());
         formacionVisitante.setFont(new Font("Arial", Font.BOLD, 40));
         formacionVisitante.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        lblStatsPoderVisitante = new JLabel(formatPoder(visitante));
+        lblStatsPoderVisitante.setFont(new Font("Arial", Font.ITALIC, 16));
+        lblStatsPoderVisitante.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelVisitante.add(lblStatsPoderVisitante);
+
         panelVisitante.add(formacionVisitante);
         panelVisitante.add(Box.createVerticalStrut(20));
 
@@ -195,5 +210,11 @@ public class InfoJugadores extends JFrame {
             modeloSuplentesVisitante.setValueAt(suplentesVisitante[i].getTarjetasAmarillas(), i, 3);
             modeloSuplentesVisitante.setValueAt(suplentesVisitante[i].getTarjetasRojas(), i, 4);
         }
+    }
+
+    private String formatPoder(Equipos equipo) {
+        return String.format("Ataque: %.1f | Defensa: %.1f",
+                equipo.getPoderOfensivo(),
+                equipo.getPoderDefensivo());
     }
 }

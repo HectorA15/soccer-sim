@@ -304,9 +304,20 @@ public class SimuladorFutbol extends JFrame {
         areaTexto.append("Marcador Final: " + equipoLocal.getNombre() + " " + golesLocal + " - " + golesVisitante + " " + equipoVisitante.getNombre() + "\n");
 
         // Mostrar ganador
-        if (golesLocal > golesVisitante) areaTexto.append("Ganador: " + equipoLocal.getNombre() + "\n");
-        else if (golesLocal < golesVisitante) areaTexto.append("Ganador: " + equipoVisitante.getNombre() + "\n");
-        else areaTexto.append("Resultado: EMPATE\n");
+        String resultadoApuestas;
+        if (golesLocal > golesVisitante) {
+            resultadoApuestas = "Local";
+            areaTexto.append("Ganador: " + equipoLocal.getNombre() + "\n");
+        } else if (golesVisitante > golesLocal) {
+            resultadoApuestas = "Visita";
+            areaTexto.append("Ganador: " + equipoVisitante.getNombre() + "\n");
+        } else {
+            resultadoApuestas = "Empate";
+            areaTexto.append("Resultado: EMPATE\n");
+        }
+
+
+        VentanaApuestas.finalizarApuestas(resultadoApuestas, this);
 
         botonIniciar.setEnabled(true);
     }

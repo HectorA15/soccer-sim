@@ -152,7 +152,7 @@ public class VentanaApuestas extends JFrame {
         }
     }
 
-    public void finalizarApuestas(String resultadoFinal) {
+    public static void finalizarApuestas(String resultadoFinal, JFrame parent) {
         double ganancias = 0.0;
 
         for (ApuestaActiva apuesta : apuestasActivas) {
@@ -163,15 +163,21 @@ public class VentanaApuestas extends JFrame {
         }
 
         saldo += ganancias;
-        mostrarResultadoFinal(ganancias);
+
+        // Llamamos al diálogo pasando el padre para centrarlo
+        mostrarResultadoFinal(ganancias, parent);
+
         apuestasActivas.clear();
-        modeloTabla.setRowCount(0);
-        actualizarInterfaz();
+
+        // Verificamos si la tabla existe (por si la ventana está abierta)
+        if (modeloTabla != null) {
+            modeloTabla.setRowCount(0);
+        }
 
     }
 
-    private void mostrarResultadoFinal(double ganancias) {
-        JDialog dialogo = new JDialog(this, "Resultado Final", true);
+    private static void mostrarResultadoFinal(double ganancias, JFrame parent) {
+        JDialog dialogo = new JDialog(parent, "Resultado de tus Apuestas", true);
         dialogo.setSize(400, 250);
         dialogo.setLayout(new BorderLayout(10, 10));
         dialogo.getContentPane().setBackground(new Color(245, 245, 250));
@@ -208,6 +214,7 @@ public class VentanaApuestas extends JFrame {
         btnCerrar.setForeground(Color.WHITE);
         btnCerrar.setBorderPainted(false);
         btnCerrar.setPreferredSize(new Dimension(100, 35));
+        btnCerrar.setFocusPainted(false);
         btnCerrar.addActionListener(e -> dialogo.dispose());
 
         JPanel panelBoton = new JPanel();
@@ -217,7 +224,7 @@ public class VentanaApuestas extends JFrame {
 
         dialogo.add(panelMensaje, BorderLayout.CENTER);
         dialogo.add(panelBoton, BorderLayout.SOUTH);
-        dialogo.setLocationRelativeTo(this);
+        dialogo.setLocationRelativeTo(parent);
         dialogo.setVisible(true);
     }
 }
