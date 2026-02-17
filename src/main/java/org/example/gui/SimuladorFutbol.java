@@ -5,6 +5,7 @@ import org.example.entidades.Equipos;
 import org.example.entidades.Formacion;
 import org.example.nombres.EquiposNombres;
 import org.example.util.GestorMercado;
+import org.example.util.Visual;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,6 +50,8 @@ public class SimuladorFutbol extends JFrame {
         setTitle("Soccer Sim - Simulador Profesional");
         setSize(900, 700); // Un poco más grande para que quepan las cuotas
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Visual.FondoPanel fondo = new Visual.FondoPanel("/ImagenEquipo.jpg");
+        this.setContentPane(fondo);
         setLayout(new BorderLayout());
         JDialog.setDefaultLookAndFeelDecorated(true);
 
@@ -70,12 +73,14 @@ public class SimuladorFutbol extends JFrame {
 
         // --- PANEL SUPERIOR (Selección) ---
         JPanel panelSuperior = new JPanel(new BorderLayout());
+        panelSuperior.setOpaque(false);
         JLabel titulo = new JLabel("SOCCER SIM", SwingConstants.CENTER);
         titulo.setFont(new Font("Impact", Font.BOLD, 36));
         titulo.setForeground(new Color(34, 139, 34));
 
         JPanel panelEquipos = new JPanel(new GridLayout(4, 2, 5, 5));
         panelEquipos.setBorder(BorderFactory.createTitledBorder("Configuración del Partido"));
+        panelEquipos.setOpaque(false);
 
         panelEquipos.add(new JLabel("Equipo Local:"));
         comboLocal = new JComboBox<>(equipos);
@@ -99,25 +104,32 @@ public class SimuladorFutbol extends JFrame {
 
         // --- AREA CENTRAL SUPERIOR (goles) ---
         JPanel panelGoles = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelGoles.setOpaque(false);
         panelGoles.setBorder(BorderFactory.createTitledBorder("Marcador Actual"));
-        panelGoles.setBackground(new Color(240, 248, 255));
+        JPanel Fondo = new JPanel(new FlowLayout(FlowLayout.CENTER, 20,5));
+
 
         lblGolesLocal = new JLabel("0");
-        JLabel lblVs = new JLabel("- VS -");
+            lblVs = new JLabel("- VS -");
         lblGolesVisitante = new JLabel("0");
 
-        Font fontGoles = new Font("Impact", Font.PLAIN, 28);
+        Font fontGoles = new Font("Arial Black", Font.PLAIN, 30);
         lblGolesLocal.setFont(fontGoles);
         lblGolesLocal.setForeground(new Color(0, 100, 0)); // Verde
 
         lblGolesVisitante.setFont(fontGoles);
         lblGolesVisitante.setForeground(new Color(0, 0, 100)); // Azul
 
-        lblVs.setFont(new Font("Arial", Font.BOLD, 14));
+        lblVs.setFont(new Font("Arial Black", Font.BOLD, 30));
 
-        panelGoles.add(lblGolesLocal);
-        panelGoles.add(lblVs);
-        panelGoles.add(lblGolesVisitante);
+        JPanel panelCentro = new Visual.PanelDegradado(new Color(20,20,20) , new Color(60,60,60));
+
+
+        panelCentro.add(lblGolesLocal);
+        panelCentro.add(lblVs);
+        panelCentro.add(lblGolesVisitante);
+        panelGoles.add(panelCentro);
+
 
         panelSuperior.add(panelEquipos, BorderLayout.NORTH);
         panelSuperior.add(panelGoles, BorderLayout.SOUTH);
@@ -128,16 +140,22 @@ public class SimuladorFutbol extends JFrame {
         areaTexto = new JTextArea();
         areaTexto.setEditable(false);
         areaTexto.setFont(new Font("Monospaced", Font.PLAIN, 18));
+        areaTexto.setForeground(Color.BLACK);
         areaTexto.setMargin(new Insets(10, 10, 10, 10));
+        areaTexto.setOpaque(false);
         JScrollPane scrollPane = new JScrollPane(areaTexto);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);;
         add(scrollPane, BorderLayout.CENTER);
 
         // --- PANEL INFERIOR (Botones y Cuotas) ---
         JPanel panelInferior = new JPanel(new BorderLayout());
+        panelInferior.setOpaque(false);
         panelInferior.setBorder(BorderFactory.createEmptyBorder( 0, 10, 10, 10)); // 10px en todos lados
 
         // Sub-panel de Cuotas (Nuevo)
         JPanel panelCuotas = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        panelCuotas.setOpaque(false);
         panelCuotas.setBorder(BorderFactory.createTitledBorder("Mercado en Vivo"));
         panelCuotas.setBackground(new Color(240, 248, 255));
 
@@ -160,10 +178,13 @@ public class SimuladorFutbol extends JFrame {
 
         // Sub-panel de Botones
         JPanel panelBotones = new JPanel();
+        panelBotones.setOpaque(false);
         panelBotones.setLayout(new BoxLayout(panelBotones, BoxLayout.X_AXIS));
 
-        Font fontBotones = new Font("Arial", Font.BOLD, 14);
-        Color colorFondo = new Color(240, 248, 255);
+        Font fontBotones = new Font("Segoe UI", Font.BOLD, 14);
+
+        Color colorFondo = new Color(21, 101, 192);
+
 
         JButton btnRegresar = new JButton("Regresar al Inicio");
         btnRegresar.addActionListener(e -> {
@@ -183,12 +204,26 @@ public class SimuladorFutbol extends JFrame {
 
 
         botonIniciar = new JButton("Iniciar Partido");
+        botonIniciar.setIcon(Visual.icon("Iniciar.png"));
+
         btnVerEquipos = new JButton("Ver Equipos");
+        btnVerEquipos.setIcon(Visual.icon("lista.png"));
+
+        btnApuestas.setIcon(Visual.icon("Apuesta.png"));
+
+        btnRegresar.setIcon(Visual.icon("Inicio.png"));
+
+
 
         for (JButton btn : new JButton[]{btnRegresar, btnApuestas, botonIniciar, btnVerEquipos}) {
+            btn.setBorderPainted(false);
+            btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));// Quita el borde 3D con relieve
             btn.setFont(fontBotones);
             btn.setBackground(colorFondo);
             btn.setFocusPainted(false);
+            btn.setForeground(Color.WHITE);
+            btn.setHorizontalTextPosition(SwingConstants.RIGHT);
+            btn.setIconTextGap(10);
         }
 
         panelBotones.add(Box.createHorizontalStrut(10)); // Espacio fijo
