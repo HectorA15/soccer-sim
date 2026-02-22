@@ -94,7 +94,6 @@ public class GestorMercado {
     }
 
 
-    //aplicamos la formula de poisson para calcular la probabilidad de que el equipo meta exactamente k goles en el tiempo restante
     private ArrayList<Double> calcularProbabilidadPoisson(double lambda) {
         ArrayList probabilidades = new ArrayList<>();
 
@@ -106,8 +105,6 @@ public class GestorMercado {
         return probabilidades;
     }
 
-
-    // Funcon para calcular el factorial de un numero, necesario para la formula de poisson
     private double factorial(int n) {
         if (n == 0) return 1;
         double resultado = 1;
