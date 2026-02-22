@@ -3,6 +3,7 @@ package org.example.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import org.example.util.Visual;
 
 public class Inicio extends JFrame {
 
@@ -11,13 +12,16 @@ public class Inicio extends JFrame {
         setSize(600, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Visual.FondoPanel fondo = new Visual.FondoPanel("/ImagenEsta.jpg");
+        this.setContentPane(fondo);
         setLayout(new BorderLayout());
 
         JPanel panelPrincipal = new JPanel();
-        panelPrincipal.setBackground(new Color(25, 42, 86)); // azul oscuro color
+
+        panelPrincipal.setOpaque(false);
         panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
 
-        JLabel lblTitulo = new JLabel("SOCCER SIM"); //titulo con font y color
+        JLabel lblTitulo = new JLabel("SOCCER SIM"); //titulo con font y colo
         lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 48));
         lblTitulo.setForeground(Color.WHITE);
@@ -57,4 +61,5 @@ public class Inicio extends JFrame {
 
         add(panelPrincipal, BorderLayout.CENTER);
     }
+
 }
